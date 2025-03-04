@@ -20,7 +20,7 @@ jobs:
         exclude:
         - compiler: gcc
           stdlib: libc++
-    name: ${{ matrix.compiler }}-${{ matrix.stdlib }})
+    name: ${{ matrix.compiler }}-${{ matrix.stdlib }}
 
     steps:
     - name: Checkout repository and submodules
