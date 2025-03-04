@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: Install Dependencies
         run: sudo apt install -y cmake doxygen gcc g++ graphviz sqlite3 libsqlite3-dev
       - name: Configure CMake
