@@ -10,6 +10,7 @@ project("StormByteConfig"
 	HOMEPAGE_URL "https://github.com/StormBytePP/StormByteConfig"
 )
 
+enable_testing()
 add_subdirectory(thirdparty)
 add_subdirectory(doc)
 add_subdirectory(lib)
