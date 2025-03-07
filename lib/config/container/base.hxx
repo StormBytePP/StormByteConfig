@@ -4,8 +4,9 @@
 #include <config/comment/base.hxx>
 #include <config/item.hxx>
 #include <config/exception.hxx>
-#include <util/templates/iterator.hxx>
 #include <util/string.hxx>
+
+#include <span>
 
 /**
  * @namespace Container
@@ -18,10 +19,6 @@ namespace StormByte::Config::Container {
 	 */
 	class STORMBYTE_CONFIG_PUBLIC Base: public Util::Templates::Clonable<Base> {
 		public:
-			using ContainerStorage 	= std::vector<Item>;							///< Shortcut alias for internal storage
-			using Iterator = Util::Templates::Iterator<ContainerStorage>;			///< Iterator for Container
-			using ConstIterator = Util::Templates::ConstIterator<ContainerStorage>;	///< ConstIterator for Container
-
 			/**
 			 * @enum OnExistingAction
 			 * @brief Action to take when a name is already in use
@@ -229,36 +226,20 @@ namespace StormByte::Config::Container {
 			}
 
 			/**
-			 * Gets an Iterator pointing to first element
-			 * @return Iterator
+			 * Get all items in the container
+			 * @return std::span of items
 			 */
-			virtual constexpr Iterator 							Begin() noexcept {
-				return Iterator::Begin(m_items);
+			inline std::span<Item> 								GetItems() noexcept {
+				return std::span(m_items);
 			}
 
 			/**
-			 * Gets a ConstIterator pointing to first element
-			 * @return ConstIterator
+			 * Get all items in the container
+			 * @return std::span of items
 			 */
-			virtual constexpr ConstIterator						Begin() const noexcept {
-				return ConstIterator::Begin(m_items);
-			}
-
-			/**
-			 * Gets an Iterator pointing to past last element
-			 * @return Iterator
-			 */
-			virtual constexpr Iterator 							End() noexcept {
-				return Iterator::End(m_items);
-			}
-
-			/**
-			 * Gets a ConstIterator pointing to past last element
-			 * @return ConstIterator
-			 */
-			virtual constexpr ConstIterator						End() const noexcept {
-				return ConstIterator::End(m_items);
-			}
+			inline std::span<const Item> 						GetItems() const noexcept {
+				return std::span(m_items);
+			}			
 
 			/**
 			 * Gets the container type

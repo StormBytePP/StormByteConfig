@@ -39,18 +39,6 @@ namespace StormByte::Config {
 	class STORMBYTE_CONFIG_PUBLIC Config: private Container::Group {
 		public:
 			/**
-			 * @class Iterator
-			 * @brief Iterator for Config
-			 */
-			using Iterator = Group::Iterator;	///< Iterator for Config
-
-			/**
-			 * @class ConstIterator
-			 * @brief Const iterator for Config
-			 */
-			using ConstIterator = Group::ConstIterator;	///< ConstIterator for Config
-
-			/**
 			 * Constructor
 			 */
 			constexpr Config():m_on_existing_action(OnExistingAction::ThrowException) {}
@@ -286,38 +274,6 @@ namespace StormByte::Config {
 			 */
 			inline void 									AddHookAfterRead(std::function<void(Config&)> hook) {
 				m_after_read_hooks.push_back(hook);
-			}
-
-			/**
-			 * Gets an iterator pointing to the first element
-			 * @return iterator
-			 */
-			constexpr Iterator								Begin() noexcept override {
-				return Group::Begin();
-			}
-
-			/**
-			 * Gets a const iterator pointing to the first element
-			 * @return const iterator
-			 */
-			constexpr ConstIterator							Begin() const noexcept override {
-				return Group::Begin();
-			}
-
-			/**
-			 * Gets an iterator pointing to past last element
-			 * @return iterator
-			 */
-			constexpr Iterator								End() noexcept override {
-				return Group::End();
-			}
-
-			/**
-			 * Gets a const iterator pointing to past last element
-			 * @return const iterator
-			 */
-			constexpr ConstIterator							End() const noexcept override {
-				return Group::End();
 			}
 
 			/**

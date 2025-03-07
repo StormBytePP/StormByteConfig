@@ -10,8 +10,9 @@ using namespace StormByte::Config;
 
 Config& Config::operator<<(const Config& source) {
 	// We will not use serialize for performance reasons
-	for (ConstIterator it = source.Begin(); it != source.End(); it++)
-		Add(*it);
+	for (const auto& item: source.GetItems())
+		Add(item);
+		
 	return *this;
 }
 
@@ -61,8 +62,8 @@ std::string& operator<<(std::string& str, const Config& config) { // 8
 
 Config::operator std::string() const {
 	std::string serialized = "";
-	for (auto it = Begin(); it != End(); it++) {
-		serialized += it->Serialize(0);// + "\n";
+	for (const auto& item : GetItems()) {
+		serialized += item.Serialize(0);
 	}
 	return serialized;
 }
