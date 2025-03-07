@@ -4,6 +4,7 @@
 #include <config/comment/single.hxx>
 
 #include <regex>
+#include <sstream>
 
 using namespace StormByte::Config;
 
