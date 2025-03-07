@@ -58,21 +58,16 @@ std::string Item::ContentsToString(const int& indent_level) const noexcept {
 	std::string serial = Util::String::Indent(indent_level);
 	switch (m_type) {
 		case Type::Integer:
-			serial += NameEqualSignString() + std::to_string((int)m_value);
+			serial += NameEqualSignString() + std::to_string(m_value.Get<int>());
 			break;
 		case Type::String:
-			#ifdef MSVC
-			/** MSVC seems not to pick operator std::string here so a cast would not be valid **/
 			serial += NameEqualSignString() + "\"" + m_value.Get<std::string>() + "\"";
-			#else
-			serial += NameEqualSignString() + "\"" + std::string((std::string)m_value) + "\"";
-			#endif
 			break;
 		case Type::Double:
-			serial += NameEqualSignString() + std::to_string((double)m_value);
+			serial += NameEqualSignString() + std::to_string(m_value.Get<double>());
 			break;
 		case Type::Bool:
-			serial += NameEqualSignString() + std::string(m_value ? "true" : "false");
+			serial += NameEqualSignString() + std::string(m_value.Get<bool>() ? "true" : "false");
 			break;
 		case Type::Comment:
 			serial += m_value.Get<CommentPTR>()->Serialize(indent_level);
