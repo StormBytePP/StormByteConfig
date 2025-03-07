@@ -1,16 +1,16 @@
-#include <config/group.hxx>
+#include <config/container/group.hxx>
 
-using namespace StormByte::Config;
+using namespace StormByte::Config::Container;
 
-std::shared_ptr<Container> Group::Clone() const {
-	return std::make_shared<Group>(*this);
+Group::PointerType Group::Clone() const {
+	return MakePointer<Group>(*this);
 }
 
-std::shared_ptr<Container> Group::Move() {
-	return std::make_shared<Group>(std::move(*this));
+Group::PointerType Group::Move() {
+	return MakePointer<Group>(std::move(*this));
 }
 
-Item& Group::Add(Item&& item, const OnExistingAction& on_existing) {
+StormByte::Config::Item& Group::Add(Item&& item, const OnExistingAction& on_existing) {
 	if (item.GetType() != Item::Type::Comment) {
 		const auto& item_name = item.Name();
 		if (!item_name) {

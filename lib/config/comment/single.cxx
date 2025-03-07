@@ -6,10 +6,10 @@ std::string SingleLine::Serialize(const int&) const noexcept {
 	return "#" + m_comment; // It is expected to start alreadyu indented
 }
 
-std::shared_ptr<Comment> SingleLine::Clone() const {
-	return std::make_shared<SingleLine>(*this);
+SingleLine::PointerType SingleLine::Clone() const {
+	return MakePointer<SingleLine>(*this);
 }
 
-std::shared_ptr<Comment> SingleLine::Move() {
-	return std::make_shared<SingleLine>(std::move(*this));
+SingleLine::PointerType SingleLine::Move() {
+	return MakePointer<SingleLine>(std::move(*this));
 }

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <config/container.hxx>
+#include <config/container/base.hxx>
 
 /**
- * @namespace Config
- * @brief All the classes for handling configuration files and items
+ * @namespace Container
+ * @brief All the classes for handling containers of configuration items
  */
-namespace StormByte::Config {
+namespace StormByte::Config::Container {
 	/**
 	 * @class List
 	 * @brief List in configuration item which can hold other items and also subgroups and sublists recursivelly separated by spaces
@@ -17,12 +17,12 @@ namespace StormByte::Config {
 	 * ]
 	 * @endcode
 	 */
-	class STORMBYTE_CONFIG_PUBLIC List final: public Container {
+	class STORMBYTE_CONFIG_PUBLIC List final: public Base {
 		public:
 			/**
 			 * Constructor
 			 */
-			constexpr List():Container(Type::List) {}
+			constexpr List():Base(Type::List) {}
 
 			/**
 			 * Copy constructor
@@ -74,12 +74,12 @@ namespace StormByte::Config {
 			 * Clones the list
 			 * @return cloned list
 			 */
-			std::shared_ptr<Container>			Clone() const override;
+			PointerType							Clone() const override;
 
 			/**
 			 * Moves the list
 			 * @return moved list
 			 */
-			std::shared_ptr<Container>			Move() override;
+			PointerType							Move() override;
 	};
 }

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <config/group.hxx>
+#include <config/container/group.hxx>
+#include <config/parser.hxx>
 
 #include <functional>
 
@@ -9,37 +10,18 @@
  * @brief All the classes for handling configuration files and items
  */
 namespace StormByte::Config {
-	/**
-	 * @namespace Parser
-	 * @brief Parsing types
-	 */
-	namespace Parser {
-		/**
-		 * @enum Mode
-		 * @brief Parsing mode
-		 */
-		enum class Mode: unsigned short {
-			Named, 	///< Named items
-			Unnamed ///< Unnamed items
-		};
-
-		/**
-		 * @enum CommentType
-		 * @brief Comment type
-		 */
-		enum class CommentType: unsigned short {
-			None, 		///< No comment
-			SingleLine, ///< SingleLine line comment
-			MultiLine 	///< MultiLine line comment
-		};
-	};
-
 	// Forward declaration
 	namespace Comment {
 		class MultiLine;
 		class SingleLine;
-	}
+	};
+}
 
+/**
+ * @namespace Config
+ * @brief All the classes for handling configuration files and items
+ */
+namespace StormByte::Config {
 	/**
 	 * @class Config
 	 * @brief Abstract class for a configuration file
@@ -54,7 +36,7 @@ namespace StormByte::Config {
 	 * - Group
 	 * - List
 	 */
-	class STORMBYTE_CONFIG_PUBLIC Config: private Group {
+	class STORMBYTE_CONFIG_PUBLIC Config: private Container::Group {
 		public:
 			/**
 			 * @class Iterator
@@ -71,7 +53,7 @@ namespace StormByte::Config {
 			/**
 			 * Constructor
 			 */
-			constexpr Config():m_on_existing_action(Container::OnExistingAction::ThrowException) {}
+			constexpr Config():m_on_existing_action(OnExistingAction::ThrowException) {}
 
 			/**
 			 * Copy constructor
@@ -179,14 +161,14 @@ namespace StormByte::Config {
 			 * @param istream input stream
 			 * @param file Config to put data to
 			 */
-			friend STORMBYTE_CONFIG_PUBLIC Config&					operator>>(std::istream& istream, Config& file); // 3
+			friend STORMBYTE_CONFIG_PUBLIC Config&			operator>>(std::istream& istream, Config& file); // 3
 
 			/**
 			 * Initializes configuration with string (when string is in the left part)
 			 * @param str input string
 			 * @param file Config to put data to
 			 */
-			friend STORMBYTE_CONFIG_PUBLIC Config&					operator>>(const std::string& str, Config& file); // 4
+			friend STORMBYTE_CONFIG_PUBLIC Config&			operator>>(const std::string& str, Config& file); // 4
 			
 			/* OUTPUT */
 			/**
@@ -213,14 +195,14 @@ namespace StormByte::Config {
 			 * @param ostream output stream
 			 * @param file Config to get data from
 			 */
-			friend STORMBYTE_CONFIG_PUBLIC std::ostream&			operator<<(std::ostream& ostream, const Config& file); // 7
+			friend STORMBYTE_CONFIG_PUBLIC std::ostream&	operator<<(std::ostream& ostream, const Config& file); // 7
 
 			/**
 			 * Output configuration serialized to string (when string is in the left part)
 			 * @param str output string
 			 * @param file Config to get data from
 			 */
-			friend STORMBYTE_CONFIG_PUBLIC std::string& 			operator<<(std::string&, const Config&); // 8
+			friend STORMBYTE_CONFIG_PUBLIC std::string& 	operator<<(std::string&, const Config&); // 8
 
 			/**
 			 * Converts current configuration to string
@@ -286,7 +268,7 @@ namespace StormByte::Config {
 			 * @param on_existing function to select element on collission
 			 * @see Container::OnExistingAction
 			 */
-			constexpr void									SetOnExistingAction(const Container::OnExistingAction& on_existing) {
+			constexpr void									SetOnExistingAction(const OnExistingAction& on_existing) {
 				m_on_existing_action = on_existing;
 			}
 
@@ -366,7 +348,7 @@ namespace StormByte::Config {
 			 * Takes 3 parameters: current configuration, existing item and new item and will return
 			 * the item to be inserted (or might throw to cancel the insert)
 			 */
-			Container::OnExistingAction m_on_existing_action;									///< Action to take when item name already exists
+			OnExistingAction m_on_existing_action;												///< Action to take when item name already exists
 
 		private:
 			/**
@@ -397,14 +379,14 @@ namespace StormByte::Config {
 			 * @param istream input stream
 			 * @return parsed value
 			 */
-			template<> Comment::MultiLine						ParseValue<Comment::MultiLine>(std::istream& istream);
+			template<> Comment::MultiLine					ParseValue<Comment::MultiLine>(std::istream& istream);
 
 			/**
 			 * Parses a value
 			 * @param istream input stream
 			 * @return parsed value
 			 */
-			template<> Comment::SingleLine						ParseValue<Comment::SingleLine>(std::istream& istream);
+			template<> Comment::SingleLine					ParseValue<Comment::SingleLine>(std::istream& istream);
 
 			/**
 			 * Parses a value
@@ -447,7 +429,7 @@ namespace StormByte::Config {
 			 * @param istream input stream
 			 * @param container container to put comments to
 			 */
-			void											FindAndParseComments(std::istream& istream, Container& container);
+			void											FindAndParseComments(std::istream& istream, Container::Base& container);
 
 			/**
 			 * Parses an item
@@ -463,7 +445,7 @@ namespace StormByte::Config {
 			 * @param istream input stream
 			 * @param container Container to put data to
 			 */
-			void 											Parse(std::istream& istream, Container& group, const Parser::Mode& mode);
+			void 											Parse(std::istream& istream, Container::Base& group, const Parser::Mode& mode);
 
 			/**
 			 * Parses an item name
@@ -513,26 +495,26 @@ namespace StormByte::Config {
 	 * @param istream input stream
 	 * @param file Config to put data to
 	 */
-	STORMBYTE_CONFIG_PUBLIC Config&								operator>>(std::istream& istream, Config& file);
+	STORMBYTE_CONFIG_PUBLIC Config&							operator>>(std::istream& istream, Config& file);
 
 	/**
 	 * Initializes configuration with string (when string is in the left part)
 	 * @param str input string
 	 * @param file Config to put data to
 	 */
-	STORMBYTE_CONFIG_PUBLIC Config&								operator>>(const std::string& str, Config& file);
+	STORMBYTE_CONFIG_PUBLIC Config&							operator>>(const std::string& str, Config& file);
 
 	/**
 	 * Output configuration serialized to output stream (when output stream is in the left part)
 	 * @param ostream output stream
 	 * @param file Config to get data from
 	 */
-	STORMBYTE_CONFIG_PUBLIC std::ostream&							operator<<(std::ostream& ostream, const Config& file);
+	STORMBYTE_CONFIG_PUBLIC std::ostream&					operator<<(std::ostream& ostream, const Config& file);
 
 	/**
 	 * Output configuration serialized to string (when string is in the left part)
 	 * @param str output string
 	 * @param file Config to get data from
 	 */
-	STORMBYTE_CONFIG_PUBLIC std::string& 							operator<<(std::string& str, const Config& file);
+	STORMBYTE_CONFIG_PUBLIC std::string& 					operator<<(std::string& str, const Config& file);
 }

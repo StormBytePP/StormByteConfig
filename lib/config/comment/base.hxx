@@ -1,6 +1,6 @@
 #pragma once
 
-#include <config/visibility.h>
+#include <config/comment/type.hxx>
 #include <util/templates/clonable.hxx>
 
 #include <string>
@@ -11,76 +11,54 @@
  */
 namespace StormByte::Config::Comment {
 	/**
-	 * @class Comment
+	 * @class Base
 	 * @brief Abstract class for a comment item
 	 */
-	class STORMBYTE_CONFIG_PUBLIC Comment:public Util::Templates::Clonable<Comment> {
+	class STORMBYTE_CONFIG_PUBLIC Base:public Util::Templates::Clonable<Base> {
 		public:
-			/**
-			 * @enum Type
-			 * @brief Comment type
-			 */
-			enum class Type: unsigned short {
-				SingleLine, ///< Single line comment starting with #
-				MultiLine	///< Multi line comment starting with /* and ending with */
-			};
-
-			/**
-			 * Gets strings from Type
-			 * @param t type to convert
-			 * @return string
-			 */
-			constexpr static std::string TypeAsString(const Type& t) noexcept {
-				switch(t) {
-					case Type::SingleLine: 	return "SingleLine";
-					case Type::MultiLine: 	return "MultiLine";
-					default: 				return "Unknown";
-				}
-			}
-
 			/**
 			 * Constructor
 			 * @param comment comment string
 			 */
-			constexpr Comment(const std::string& comment):Util::Templates::Clonable<Comment>(), m_comment(comment) {}
+			constexpr Base(const std::string& comment):Util::Templates::Clonable<Base>(), m_comment(comment) {}
 
 			/**
 			 * Move Constructor
 			 * @param comment comment string
 			 */
-			constexpr Comment(std::string&& comment):Util::Templates::Clonable<Comment>(), m_comment(std::move(comment)) {};
+			constexpr Base(std::string&& comment):Util::Templates::Clonable<Base>(), m_comment(std::move(comment)) {};
 
 			/**
 			 * Copy constructor
 			 */
-			constexpr Comment(const Comment&)					= default;
+			constexpr Base(const Base&)					= default;
 
 			/**
 			 * Move constructor
 			 */
-			constexpr Comment(Comment&&)						= default;
+			constexpr Base(Base&&)						= default;
 
 			/**
 			 * Assignment operator
 			 */
-			constexpr Comment& operator=(const Comment&)		= default;
+			constexpr Base& operator=(const Base&)		= default;
 
 			/**
 			 * Move assignment operator
 			 */
-			constexpr Comment& operator=(Comment&&)				= default;
+			constexpr Base& operator=(Base&&)				= default;
 
 			/**
 			 * Destructor
 			 */
-			virtual constexpr ~Comment() noexcept				= default;
+			virtual constexpr ~Base() noexcept				= default;
 
 			/**
 			 * Compares two comments
 			 * @param other comment to compare to
 			 * @return bool are they equal?
 			 */
-			constexpr bool 										operator==(const Comment& other) const noexcept {
+			constexpr bool 										operator==(const Base& other) const noexcept {
 				return m_comment == other.m_comment;
 			}
 
@@ -89,7 +67,7 @@ namespace StormByte::Config::Comment {
 			 * @param other comment to compare to
 			 * @return bool are they not equal?
 			 */
-			constexpr bool 										operator!=(const Comment& other) const noexcept {
+			constexpr bool 										operator!=(const Base& other) const noexcept {
 				return !(*this == other);
 			}
 
@@ -114,7 +92,7 @@ namespace StormByte::Config::Comment {
 			 * @param value comment to set
 			 * @return reference to comment
 			 */
-			constexpr Comment& 									operator=(const std::string& value) {
+			constexpr Base& 									operator=(const std::string& value) {
 				m_comment = value;
 				return *this;
 			}
@@ -124,7 +102,7 @@ namespace StormByte::Config::Comment {
 			 * @param value comment to set
 			 * @return reference to comment
 			 */
-			constexpr Comment& 									operator=(std::string&& value) {
+			constexpr Base& 									operator=(std::string&& value) {
 				m_comment = std::move(value);
 				return *this;
 			}
@@ -134,7 +112,7 @@ namespace StormByte::Config::Comment {
 			 * @param value string to append
 			 * @return reference to comment
 			 */
-			constexpr Comment& 									operator+=(const std::string& value) {
+			constexpr Base& 									operator+=(const std::string& value) {
 				m_comment += value;
 				return *this;
 			}
@@ -144,7 +122,7 @@ namespace StormByte::Config::Comment {
 			 * @param value string to move
 			 * @return reference to comment
 			 */
-			constexpr Comment& 									operator+=(std::string&& value) {
+			constexpr Base& 									operator+=(std::string&& value) {
 				m_comment += std::move(value);
 				return *this;
 			}
@@ -179,7 +157,7 @@ namespace StormByte::Config::Comment {
 			 * @return comment string
 			 */
 			constexpr std::string 								TypeAsString() const noexcept {
-				return TypeAsString(m_type);
+				return Comment::TypeAsString(m_type);
 			}
 
 			/**

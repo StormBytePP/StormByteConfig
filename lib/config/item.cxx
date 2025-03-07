@@ -1,6 +1,6 @@
-#include <config/comment.hxx>
-#include <config/group.hxx>
-#include <config/list.hxx>
+#include <config/comment/base.hxx>
+#include <config/container/group.hxx>
+#include <config/container/list.hxx>
 #include <config/exception.hxx>
 #include <util/string.hxx>
 
@@ -8,17 +8,17 @@
 
 using namespace StormByte::Config;
 
-Item::Item(const std::string& name, const Container& value):m_name(name), m_type(Type::Container), m_value(value.Clone()) {}
+Item::Item(const std::string& name, const Container::Base& value):m_name(name), m_type(Type::Container), m_value(value.Clone()) {}
 
-Item::Item(const Container& value):m_type(Type::Container), m_value(value.Clone()) {}
+Item::Item(const Container::Base& value):m_type(Type::Container), m_value(value.Clone()) {}
 
-Item::Item(std::string&& name, Container&& value):m_name(std::move(name)), m_type(Type::Container), m_value(value.Move()) {}
+Item::Item(std::string&& name, Container::Base&& value):m_name(std::move(name)), m_type(Type::Container), m_value(value.Move()) {}
 
-Item::Item(Container&& value):m_type(Type::Container), m_value(value.Move()) {}
+Item::Item(Container::Base&& value):m_type(Type::Container), m_value(value.Move()) {}
 
-Item::Item(const Comment::Comment& value):m_type(Type::Comment), m_value(value.Clone()) {}
+Item::Item(const Comment::Base& value):m_type(Type::Comment), m_value(value.Clone()) {}
 
-Item::Item(Comment::Comment&& value):m_type(Type::Comment), m_value(value.Move()) {}
+Item::Item(Comment::Base&& value):m_type(Type::Comment), m_value(value.Move()) {}
 
 Item::Item(const std::string& name, const std::string& value):m_name(name), m_type(Type::String), m_value(value) {}
 
@@ -70,10 +70,10 @@ std::string Item::ContentsToString(const int& indent_level) const noexcept {
 			serial += NameEqualSignString() + std::string(m_value.Get<bool>() ? "true" : "false");
 			break;
 		case Type::Comment:
-			serial += m_value.Get<CommentPTR>()->Serialize(indent_level);
+			serial += m_value.Get<Comment::Base>().Serialize(indent_level);
 			break;
 		case Type::Container:
-			serial += NameEqualSignString() + m_value.Get<ContainerPTR>()->Serialize(indent_level);
+			serial += NameEqualSignString() + m_value.Get<Container::Base>().Serialize(indent_level);
 			break;
 	}
 	return serial + "\n";
@@ -82,18 +82,10 @@ std::string Item::ContentsToString(const int& indent_level) const noexcept {
 size_t Item::Count() const noexcept {
 	switch(m_type) {
 		case Type::Container:
-			return 1 + m_value.Get<ContainerPTR>()->Count();
+			return 1 + m_value.Get<Container::Base>().Count();
 		case Type::Comment:
-			return m_value.Get<CommentPTR>()->Count();
+			return m_value.Get<Comment::Base>().Count();
 		default:
 			return 1;
 	}
-}
-
-template<> const Container& Item::Value<Container>() const {
-	return *m_value.Get<ContainerPTR>();
-}
-
-template<> Container& Item::Value<Container>() {
-	return const_cast<Container&>(static_cast<const Item&>(*this).Value<Container>());
 }

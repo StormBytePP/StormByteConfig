@@ -1,6 +1,6 @@
 #pragma once
 
-#include <config/comment.hxx>
+#include <config/comment/base.hxx>
 
 /**
  * @namespace Comment
@@ -11,13 +11,13 @@ namespace StormByte::Config::Comment {
 	 * @class MultiLine
 	 * @brief Class for a multiline comment item in C/C++ style
 	 */
-	class STORMBYTE_CONFIG_PUBLIC MultiLine final: public Comment {
+	class STORMBYTE_CONFIG_PUBLIC MultiLine final: public Base {
 		public:
 			/**
 			 * Constructor
 			 * @param comment comment string
 			 */
-			constexpr MultiLine(const std::string& comment):Comment(comment) {
+			constexpr MultiLine(const std::string& comment):Base(comment) {
 				m_type = Type::MultiLine;
 			}
 
@@ -25,7 +25,7 @@ namespace StormByte::Config::Comment {
 			 * Move Constructor
 			 * @param comment comment string
 			 */
-			constexpr MultiLine(std::string&& comment):Comment(std::move(comment)) {
+			constexpr MultiLine(std::string&& comment):Base(std::move(comment)) {
 				m_type = Type::MultiLine;
 			}
 
@@ -64,12 +64,12 @@ namespace StormByte::Config::Comment {
 			 * Clones the object
 			 * @return cloned object
 			 */
-			std::shared_ptr<Comment> 							Clone() const override;
+			PointerType 										Clone() const override;
 
 			/**
 			 * Moves the object
 			 * @return moved object
 			 */
-			std::shared_ptr<Comment> 							Move() override;
+			PointerType 										Move() override;
 	};
 }

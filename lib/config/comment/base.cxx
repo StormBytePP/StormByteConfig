@@ -1,4 +1,4 @@
-#include <config/comment.hxx>
+#include <config/comment/base.hxx>
 
 using namespace StormByte::Config::Comment;
 

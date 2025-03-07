@@ -1,16 +1,16 @@
-#include <config/list.hxx>
+#include <config/container/list.hxx>
 
-using namespace StormByte::Config;
+using namespace StormByte::Config::Container;
 
-std::shared_ptr<Container> List::Clone() const {
-	return std::make_shared<List>(*this);
+List::PointerType List::Clone() const {
+	return MakePointer<List>(*this);
 }
 
-std::shared_ptr<Container> List::Move() {
-	return std::make_shared<List>(std::move(*this));
+List::PointerType List::Move() {
+	return MakePointer<List>(std::move(*this));
 }
 
-Item& List::Add(Item&& item, const OnExistingAction& on_existing) {
+StormByte::Config::Item& List::Add(Item&& item, const OnExistingAction& on_existing) {
 	if (item.GetType() != Item::Type::Comment && item.Name()) {
 		throw InvalidName("List does not allow named items");
 	}	

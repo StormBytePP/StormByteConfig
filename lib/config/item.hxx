@@ -1,24 +1,26 @@
 #pragma once
 
 #include <config/exception.hxx>
-#include <config/alias.hxx>
+#include <util/templates/variadic_value.hxx>
 
+#include <memory>
 #include <optional>
+
+// Forwards
+namespace StormByte::Config::Container { class Base; }
+namespace StormByte::Config::Comment { class Base; }
 
 /**
  * @namespace Config
  * @brief All the classes for handling configuration files and items
  */
 namespace StormByte::Config {
-	class Container;
-	namespace Comment {
-		class Comment;
-	}
 	/**
 	 * @class Item
 	 * @brief Class for a configuration item
 	 */
 	class STORMBYTE_CONFIG_PUBLIC Item {
+		using ItemStorage 		= Util::Templates::VariadicValue<std::string, int, double, bool, std::shared_ptr<Container::Base>, std::shared_ptr<Comment::Base>>;	///< Shortcut alias for storage
 		public:
 			/**
 			 * @enum Type
@@ -58,38 +60,38 @@ namespace StormByte::Config {
 			 * @param name item name
 			 * @param value container value
 			 */
-			Item(const std::string& name, const Container& value);
+			Item(const std::string& name, const Container::Base& value);
 
 			/**
 			 * Creates an item with a group value
 			 * @param value item value
 			 */
-			Item(const Container& value);
+			Item(const Container::Base& value);
 
 			/**
 			 * Creates an item moving the group value
 			 * @param name item name
 			 * @param value item value
 			 */
-			Item(std::string&& name, Container&& value);
+			Item(std::string&& name, Container::Base&& value);
 
 			/**
 			 * Creates an item with a comment value
 			 * @param value item value
 			 */
-			Item(const Comment::Comment& value);
+			Item(const Comment::Base& value);
 
 			/**
 			 * Creates an item with a comment value
 			 * @param value item value
 			 */
-			Item(Comment::Comment&& value);
+			Item(Comment::Base&& value);
 
 			/**
 			 * Creates an item moving the group value
 			 * @param value item value
 			 */
-			Item(Container&& value);
+			Item(Container::Base&& value);
 
 			/**
 			 * Creates an item with a string value
@@ -285,20 +287,6 @@ namespace StormByte::Config {
 			 * @return value const reference
 			 */
 			template<typename T> const T&				Value() const;
-
-			#ifdef MSVC
-			/**
-			 * Value getter as reference
-			 * @return value reference
-			 */
-			template<> Container& Value<Container>();
-
-			/**
-			 * Value getter as const reference
-			 * @return value const reference
-			 */
-			template<> const Container& Value<Container>() const;
-			#endif
 
 			/**
 			 * Serializes the boolean item

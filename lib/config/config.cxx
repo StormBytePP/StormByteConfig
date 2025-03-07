@@ -1,5 +1,5 @@
 #include <config/config.hxx>
-#include <config/list.hxx>
+#include <config/container/list.hxx>
 #include <config/comment/multi.hxx>
 #include <config/comment/single.hxx>
 
@@ -244,7 +244,7 @@ Parser::CommentType Config::FindComment(std::istream& istream) {
 	return Parser::CommentType::None;
 }
 
-void Config::FindAndParseComments(std::istream& istream, Container& container) {
+void Config::FindAndParseComments(std::istream& istream, Container::Base& container) {
 	Parser::CommentType type;
 	while ((type = FindComment(istream)) != Parser::CommentType::None) {
 		switch (type) {
@@ -266,12 +266,12 @@ std::unique_ptr<Item> Config::ParseItem(std::istream& istream, const Item::Type&
 			m_container_level++;
 			switch (ParseContainerType(istream)) {
 				case Container::Type::Group: {
-					Group group;
+					Container::Group group;
 					Parse(istream, group, Parser::Mode::Named);
 					return std::make_unique<Item>(std::move(group));
 				}
 				case Container::Type::List: {
-					List list;
+					Container::List list;
 					Parse(istream, list, Parser::Mode::Unnamed);
 					return std::make_unique<Item>(std::move(list));
 				}
@@ -291,7 +291,7 @@ std::unique_ptr<Item> Config::ParseItem(std::istream& istream, const Item::Type&
 	return nullptr;
 }
 
-void Config::Parse(std::istream& istream, Container& container, const Parser::Mode& mode) {
+void Config::Parse(std::istream& istream, Container::Base& container, const Parser::Mode& mode) {
 	bool halt = false;
 	FindAndParseComments(istream, container);
 	while (!halt && !istream.eof()) {
@@ -399,7 +399,7 @@ Item::Type Config::ParseType(std::istream& istream) {
 	return *type;
 }
 
-Container::Type Config::ParseContainerType(std::istream& istream) {
+StormByte::Config::Container::Type Config::ParseContainerType(std::istream& istream) {
 	/**** THIS FUNCTION ONLY DETECTS TYPE NOT CHECKS FOR VALIDITY *****/
 	char c = '\0';
 	ConsumeWS(istream);
@@ -418,7 +418,7 @@ bool Config::FindContainerEnd(std::istream& istream, const Container::Type& cont
 	char c;
 	bool result = false;
 	if (istream.get(c)) {
-		if (Container::EnclosureCharacters(container_type).second == c)
+		if (EnclosureCharacters(container_type).second == c)
 			result = true;
 		else
 			istream.unget();

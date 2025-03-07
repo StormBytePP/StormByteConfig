@@ -21,10 +21,10 @@ std::string MultiLine::Serialize(const int&) const noexcept {
 	return serial + "*/";
 }
 
-std::shared_ptr<Comment> MultiLine::Clone() const {
-	return std::make_shared<MultiLine>(*this);
+MultiLine::PointerType MultiLine::Clone() const {
+	return MakePointer<MultiLine>(*this);
 }
 
-std::shared_ptr<Comment> MultiLine::Move() {
-	return std::make_shared<MultiLine>(std::move(*this));
+MultiLine::PointerType MultiLine::Move() {
+	return MakePointer<MultiLine>(std::move(*this));
 }

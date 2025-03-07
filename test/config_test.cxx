@@ -1,5 +1,5 @@
 #include <config/config.hxx>
-#include <config/list.hxx>
+#include <config/container/list.hxx>
 #include <config/comment/multi.hxx>
 #include <config/comment/single.hxx>
 #include <util/system.hxx>
@@ -91,12 +91,12 @@ int test_nested_groups() {
 
 	try {
 		// Create nested groups
-		Item& group1 = config.Add(Item("Group1", Group()));
-		Item& group2 = group1.Value<Container>().Add(Item("Group2", Group()));
+		Item& group1 = config.Add(Item("Group1", Container::Group()));
+		Item& group2 = group1.Value().Get<Container::Base>().Add(Item("Group2", Container::Group()));
 
 		// Add items to sub-group
-		group2.Value<Container>().Add(Item("SubTestInt", 99));
-		group2.Value<Container>().Add(Item("SubTestStr", "Sub Hello"));
+		group2.Value().Get<Container::Base>().Add(Item("SubTestInt", 99));
+		group2.Value().Get<Container::Base>().Add(Item("SubTestStr", "Sub Hello"));
 
 		// Lookup and validate items
 		const Item& lookup_int = config["Group1/Group2/SubTestInt"];
@@ -119,12 +119,12 @@ int test_add_remove_group() {
 
 	try {
 		// Add group and items
-		Group group;
+		Container::Group group;
 		group.Add(Item("GroupInt", 55));
 		Item& group_item = config.Add(Item("TestGroup", group));
 
 		// Remove the item from the group
-		group_item.Value<Container>().Remove("GroupInt");
+		group_item.Value().Get<Container::Base>().Remove("GroupInt");
 
 		// Validate removal
 		config["TestGroup/GroupInt"];
@@ -197,14 +197,14 @@ int test_complex_config_creation() {
 
 	try {
 		// Create a complex configuration
-		Item& group1 = config.Add(Item("Group1", Group()));
-		Item& group2 = group1.Value<Container>().Add(Item("Group2", Group()));
+		Item& group1 = config.Add(Item("Group1", Container::Group()));
+		Item& group2 = group1.Value().Get<Container::Base>().Add(Item("Group2", Container::Group()));
 
-		group2.Value<Container>().Add(Item("IntItem1", 123));
-		group2.Value<Container>().Add(Item("StrItem1", "Nested String"));
+		group2.Value().Get<Container::Base>().Add(Item("IntItem1", 123));
+		group2.Value().Get<Container::Base>().Add(Item("StrItem1", "Nested String"));
 
-		Item& group3 = config.Add(Item("Group3", Group()));
-		group3.Value<Container>().Add(Item("IntItem2", 456));
+		Item& group3 = config.Add(Item("Group3", Container::Group()));
+		group3.Value().Get<Container::Base>().Add(Item("IntItem2", 456));
 
 		// Write to a temporary file
 		std::fstream file;
@@ -472,12 +472,12 @@ int test_deeply_nested_groups() {
     Config config;
 
 	try {
-		Item& group1 = config.Add(Item("Group1", Group()));
-		Item& group2 = group1.Value<Container>().Add(Item("Group2", Group()));
-		Item& group3 = group2.Value<Container>().Add(Item("Group3", Group()));
-		Item& group4 = group3.Value<Container>().Add(Item("Group4", Group()));
+		Item& group1 = config.Add(Item("Group1", Container::Group()));
+		Item& group2 = group1.Value().Get<Container::Base>().Add(Item("Group2", Container::Group()));
+		Item& group3 = group2.Value().Get<Container::Base>().Add(Item("Group3", Container::Group()));
+		Item& group4 = group3.Value().Get<Container::Base>().Add(Item("Group4", Container::Group()));
 
-		group4.Value<Container>().Add(Item("DeepInt", 1234));
+		group4.Value().Get<Container::Base>().Add(Item("DeepInt", 1234));
 
 		const Item& lookup_int = config["Group1/Group2/Group3/Group4/DeepInt"];
 		ASSERT_EQUAL("test_deeply_nested_groups", 1234, lookup_int.Value().Get<int>());
@@ -677,7 +677,7 @@ int duplicated_insertion() {
 int on_name_clash_keep_existing() {
 	int result = 0;
 	Config cfg;
-	cfg.SetOnExistingAction(Container::OnExistingAction::Keep);
+	cfg.SetOnExistingAction(Container::Base::OnExistingAction::Keep);
 	cfg.Add(Item("testItem", true));
 	try {
 		cfg.Add(Item("testItem", 666));
@@ -696,7 +696,7 @@ int on_name_clash_keep_existing() {
 int on_name_clash_replace() {
 	int result = 0;
 	Config cfg;
-	cfg.SetOnExistingAction(Container::OnExistingAction::Overwrite);
+	cfg.SetOnExistingAction(Container::Base::OnExistingAction::Overwrite);
 	cfg.Add(Item("testItem", true));
 	try {
 		cfg.Add(Item("testItem", 66));
@@ -752,9 +752,9 @@ int config_value_reference_change() {
 int config_remove_full_path() {
 	int result = 0;
 	Config cfg;
-	Item& group = cfg.Add(Item("testGroup", Group()));
-	group.Value<Container>().Add(Item("testInt", 99));
-	group.Value<Container>().Add(Item("testString", "Group String"));
+	Item& group = cfg.Add(Item("testGroup", Container::Group()));
+	group.Value().Get<Container::Base>().Add(Item("testInt", 99));
+	group.Value().Get<Container::Base>().Add(Item("testString", "Group String"));
 
 	try {
 		cfg.Remove("testGroup/testInt");
@@ -796,19 +796,19 @@ int config_test_add_empty_name() {
 // List test
 int config_list_test() {
 	Config cfg;
-	cfg.Add(Item("testList", List()));
+	cfg.Add(Item("testList", Container::List()));
 	Item& list = cfg["testList"];
-	list.Value<Container>().Add(Item(Comment::SingleLine("List comment")));
-	list.Value<Container>().Add(Item(66));
-	list.Value<Container>().Add(Item("Test string"));
-	cfg.Add(Item("testGroup", Group()));
+	list.Value().Get<Container::Base>().Add(Item(Comment::SingleLine("List comment")));
+	list.Value().Get<Container::Base>().Add(Item(66));
+	list.Value().Get<Container::Base>().Add(Item("Test string"));
+	cfg.Add(Item("testGroup", Container::Group()));
 	Item& group = cfg["testGroup"];
-	group.Value<Container>().Add(Item("testInt", 99));
-	group.Value<Container>().Add(Item("testString2", "Group String"));
-	group.Value<Container>().Add(Item("testList2", List()));
-	Item& list2 = group.Value<Container>()["testList2"];
-	list2.Value<Container>().Add(Item(Comment::SingleLine("List comment 2")));
-	list2.Value<Container>().Add(Item(11));
+	group.Value().Get<Container::Base>().Add(Item("testInt", 99));
+	group.Value().Get<Container::Base>().Add(Item("testString2", "Group String"));
+	group.Value().Get<Container::Base>().Add(Item("testList2", Container::List()));
+	Item& list2 = group.Value().Get<Container::Base>()["testList2"];
+	list2.Value().Get<Container::Base>().Add(Item(Comment::SingleLine("List comment 2")));
+	list2.Value().Get<Container::Base>().Add(Item(11));
 
 	const std::string expected = "testList = [\n"
     "\t#List comment\n"
@@ -845,9 +845,9 @@ int config_list_access_by_index() {
 		file.open(CurrentFileDirectory / "files" / "good_list_conf1.conf", std::ios::in);
 		cfg1 << file;
 		file.close();
-		const auto& lookup_list = cfg1["testList"].Value<Container>();
+		const auto& lookup_list = cfg1["testList"].Value().Get<Container::Base>();
 		ASSERT_EQUAL("config_list_access_by_index", 66, lookup_list[1].Value().Get<int>());
-		const auto& lookup_list2 = cfg1["testGroup/testList2"].Value<Container>();
+		const auto& lookup_list2 = cfg1["testGroup/testList2"].Value().Get<Container::Base>();
 		ASSERT_EQUAL("config_list_access_by_index", 11, lookup_list2[1].Value().Get<int>());
 	}
 	catch(const StormByte::Config::Exception& ex) {
@@ -866,8 +866,8 @@ int complex_conf1() {
 		cfg << file;
 		file.close();
 		const Item& lookup_testInt = cfg["testGroup/testList2"];
-		const Item& group_inside_list = lookup_testInt.Value<Container>()[3];
-		const Item& lookup_testInt_inside = group_inside_list.Value<Container>()["testInt"];
+		const Item& group_inside_list = lookup_testInt.Value().Get<Container::Base>()[3];
+		const Item& lookup_testInt_inside = group_inside_list.Value().Get<Container::Base>()["testInt"];
 		ASSERT_EQUAL("complex_conf1", 1, lookup_testInt_inside.Value().Get<int>());
 	}
 	catch(const StormByte::Config::Exception& e) {
@@ -889,8 +889,8 @@ int copy_and_delete() {
 		const Config cfg2(*cfg);
 		cfg.reset();
 		const Item& lookup_testInt = cfg2["testGroup/testList2"];
-		const Item& group_inside_list = lookup_testInt.Value<Container>()[3];
-		const Item& lookup_testInt_inside = group_inside_list.Value<Container>()["testInt"];
+		const Item& group_inside_list = lookup_testInt.Value().Get<Container::Base>()[3];
+		const Item& lookup_testInt_inside = group_inside_list.Value().Get<Container::Base>()["testInt"];
 		ASSERT_EQUAL("copy_and_delete", 1, lookup_testInt_inside.Value().Get<int>());
 	}
 	catch(const StormByte::Config::Exception& e) {

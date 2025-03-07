@@ -1,11 +1,11 @@
-#include <config/container.hxx>
+#include <config/container/base.hxx>
 #include <config/item.hxx>
 
 #include <regex>
 
-using namespace StormByte::Config;
+using namespace StormByte::Config::Container;
 
-const Item& Container::Child(const std::string& name) const {
+const StormByte::Config::Item& Base::Child(const std::string& name) const {
 	auto it = std::find_if(
 		m_items.begin(),
 		m_items.end(),
@@ -27,7 +27,7 @@ const Item& Container::Child(const std::string& name) const {
 		throw ItemNotFound(name);
 }
 
-bool Container::Exists(const std::string& path) const {
+bool Base::Exists(const std::string& path) const {
 	try {
 		LookUp(path);
 		return true;
@@ -36,7 +36,7 @@ bool Container::Exists(const std::string& path) const {
 	}
 }
 
-std::string Container::Serialize(const int& indent_level) const noexcept {
+std::string Base::Serialize(const int& indent_level) const noexcept {
 	const auto enclosure_characters = EnclosureCharacters(m_type);
 	std::string serial = std::string(1, enclosure_characters.first) + "\n";
 	serial += ContentsToString(indent_level + 1);
@@ -44,7 +44,7 @@ std::string Container::Serialize(const int& indent_level) const noexcept {
 	return serial;
 }
 
-size_t Container::Count() const noexcept {
+size_t Base::Count() const noexcept {
 	size_t count = 0;
 	for (const auto& item : m_items) {
 		count += item.Count();
@@ -52,19 +52,19 @@ size_t Container::Count() const noexcept {
 	return count;
 }
 
-std::string Container::ContentsToString(const int& indent_level) const noexcept {
+std::string Base::ContentsToString(const int& indent_level) const noexcept {
 	std::string serial = "";
 	for (auto it = m_items.begin(); it != m_items.end(); it++)
 		serial += it->Serialize(indent_level);
 	return serial;
 }
 
-bool Container::IsPathValid(const std::string& name) noexcept {
+bool Base::IsPathValid(const std::string& name) noexcept {
 	std::regex name_regex(R"(^[A-Za-z][A-Za-z0-9_]*(/[A-Za-z0-9_]+)*$)");
 	return std::regex_match(name, name_regex);
 }
 
-const Item& Container::LookUp(std::queue<std::string>& path) const {
+const StormByte::Config::Item& Base::LookUp(std::queue<std::string>& path) const {
 	std::string item_path = path.front();
 	path.pop();
 	if (path.size() == 0) {
@@ -78,13 +78,13 @@ const Item& Container::LookUp(std::queue<std::string>& path) const {
 	else {
 		// Recursive LookUp path
 		if (Util::String::IsNumeric(item_path))
-			return operator[](std::stoi(item_path)).Value().Get<ContainerPTR>()->LookUp(path);
+			return operator[](std::stoi(item_path)).Value().Get<Container::Base>().LookUp(path);
 		else
-			return Child(item_path).Value().Get<ContainerPTR>()->LookUp(path);
+			return Child(item_path).Value().Get<Container::Base>().LookUp(path);
 	}
 }
 
-void Container::Remove(std::queue<std::string>& path) {
+void Base::Remove(std::queue<std::string>& path) {
 	std::string item_path = path.front();
 	path.pop();
 	if (path.size() == 0) {
@@ -99,6 +99,6 @@ void Container::Remove(std::queue<std::string>& path) {
 	}
 	else {
 		// Recursive Remove path
-		Child(item_path).Value().Get<ContainerPTR>()->Remove(path);
+		Child(item_path).Value().Get<Container::Base>().Remove(path);
 	}
 }

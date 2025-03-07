@@ -1,23 +1,24 @@
 #pragma once
 
-#include <config/alias.hxx>
-#include <config/comment.hxx>
+#include <config/container/type.hxx>
+#include <config/comment/base.hxx>
 #include <config/item.hxx>
 #include <config/exception.hxx>
 #include <util/templates/iterator.hxx>
 #include <util/string.hxx>
 
 /**
- * @namespace Config
- * @brief All the classes for handling configuration files and items
+ * @namespace Container
+ * @brief All the classes for handling containers of configuration items
  */
-namespace StormByte::Config {
+namespace StormByte::Config::Container {
 	/**
-	 * @class Container
+	 * @class Base
 	 * @brief Base abstract class for a container of configuration items
 	 */
-	class STORMBYTE_CONFIG_PUBLIC Container: public Util::Templates::Clonable<Container> {
+	class STORMBYTE_CONFIG_PUBLIC Base: public Util::Templates::Clonable<Base> {
 		public:
+			using ContainerStorage 	= std::vector<Item>;							///< Shortcut alias for internal storage
 			using Iterator = Util::Templates::Iterator<ContainerStorage>;			///< Iterator for Container
 			using ConstIterator = Util::Templates::ConstIterator<ContainerStorage>;	///< ConstIterator for Container
 
@@ -32,70 +33,35 @@ namespace StormByte::Config {
 			};
 
 			/**
-			 * @enum Type
-			 * @brief Container type
-			 */
-			enum class Type: unsigned short {
-				Group, 	///< Group of items
-				List	///< List of items
-			};
-
-			/**
-			 * Gets strings from Type
-			 * @param t type to convert
-			 * @return string
-			 */
-			constexpr static const char* 						TypeAsString(const Type& t) noexcept {
-				switch(t) {
-					case Type::Group:	return "Group";
-					case Type::List:	return "List";
-					default:			return "Unknown";
-				}
-			}
-
-			/**
-			 * Gets Type from start character
-			 * @param start start character
-			 * @return Type Container type
-			 */
-			constexpr static Type 								TypeFromStartCharacter(const char& start) noexcept {
-				switch(start) {
-					case '{': 			return Type::Group;
-					case '[': 			return Type::List;
-					default: 			throw Exception("Unknown start character " + std::string(1, start) + " for container");
-				}
-			}
-
-			/**
 			 * Constructor
 			 * @param type container type
 			 */
-			constexpr Container(const Type& type):m_type(type) {}
+			constexpr Base(const Type& type):m_type(type) {}
 
 			/**
 			 * Copy constructor
 			 */
-			constexpr Container(const Container&)				= default;
+			constexpr Base(const Base&)				= default;
 
 			/**
 			 * Move constructor
 			 */
-			constexpr Container(Container&&) noexcept			= default;
+			constexpr Base(Base&&) noexcept			= default;
 
 			/**
 			 * Assignment operator
 			 */
-			constexpr Container& operator=(const Container&)	= default;
+			constexpr Base& operator=(const Base&)	= default;
 
 			/**
 			 * Move assignment operator
 			 */
-			constexpr Container& operator=(Container&&)			= default;
+			constexpr Base& operator=(Base&&)			= default;
 
 			/**
 			 * Destructor
 			 */
-			constexpr virtual ~Container() noexcept				= default;
+			constexpr virtual ~Base() noexcept				= default;
 
 			/**
 			 * Gets a reference to Item by index
@@ -103,7 +69,7 @@ namespace StormByte::Config {
 			 * @return size_t number of items
 			 */
 			virtual constexpr Item& 							operator[](const size_t& index) {
-				return const_cast<Item&>(static_cast<const Container&>(*this)[index]);
+				return const_cast<Item&>(static_cast<const Base&>(*this)[index]);
 			}
 
 			/**
@@ -125,7 +91,7 @@ namespace StormByte::Config {
 			 * @return Item& item
 			 */
 			constexpr virtual Item& 							operator[](const std::string& path) {
-				return const_cast<Item&>(static_cast<const Container&>(*this)[path]);
+				return const_cast<Item&>(static_cast<const Base&>(*this)[path]);
 			}
 
 			/**
@@ -144,7 +110,7 @@ namespace StormByte::Config {
 			 * @param other container to compare
 			 * @return bool equal?
 			 */
-			constexpr bool 										operator==(const Container& other) const noexcept {
+			constexpr bool 										operator==(const Base& other) const noexcept {
 				return m_items == other.m_items;
 			}
 
@@ -153,7 +119,7 @@ namespace StormByte::Config {
 			 * @param other container to compare
 			 * @return bool not equal?
 			 */
-			constexpr bool 										operator!=(const Container& other) const noexcept {
+			constexpr bool 										operator!=(const Base& other) const noexcept {
 				return !(*this == other);
 			}
 
@@ -183,7 +149,7 @@ namespace StormByte::Config {
 			 * @return reference to found Item
 			 */
 			inline Item& 										Child(const std::string& name) {
-				return const_cast<Item&>(static_cast<const Container&>(*this).Child(name));
+				return const_cast<Item&>(static_cast<const Base&>(*this).Child(name));
 			}
 
 			/**
@@ -267,7 +233,7 @@ namespace StormByte::Config {
 			 * @return Iterator
 			 */
 			virtual constexpr Iterator 							Begin() noexcept {
-				return Util::Templates::Iterator<ContainerStorage>::Begin(m_items);
+				return Iterator::Begin(m_items);
 			}
 
 			/**
@@ -275,7 +241,7 @@ namespace StormByte::Config {
 			 * @return ConstIterator
 			 */
 			virtual constexpr ConstIterator						Begin() const noexcept {
-				return Util::Templates::ConstIterator<ContainerStorage>::Begin(m_items);
+				return ConstIterator::Begin(m_items);
 			}
 
 			/**
@@ -283,7 +249,7 @@ namespace StormByte::Config {
 			 * @return Iterator
 			 */
 			virtual constexpr Iterator 							End() noexcept {
-				return Util::Templates::Iterator<ContainerStorage>::End(m_items);
+				return Iterator::End(m_items);
 			}
 
 			/**
@@ -291,7 +257,7 @@ namespace StormByte::Config {
 			 * @return ConstIterator
 			 */
 			virtual constexpr ConstIterator						End() const noexcept {
-				return Util::Templates::ConstIterator<ContainerStorage>::End(m_items);
+				return ConstIterator::End(m_items);
 			}
 
 			/**
@@ -307,7 +273,7 @@ namespace StormByte::Config {
 			 * @return container type
 			 */
 			constexpr std::string 								TypeAsString() const noexcept {
-				return TypeAsString(m_type);
+				return Container::TypeAsString(m_type);
 			}
 
 			/**
@@ -331,7 +297,7 @@ namespace StormByte::Config {
 			/**
 			 * Constructor
 			 */
-			constexpr Container()								= default;
+			constexpr Base()								= default;
 
 			/**
 			 * Internal function to get item contents as string
