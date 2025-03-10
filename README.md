@@ -58,7 +58,7 @@ StormByte Library is composed by several modules:
 
 #### Overview
 
-The `Config` module of StormByte provides a flexible and human-readable way to manage configuration files. It supports initialization from any `std::istream`, setting pre and post read hooks using `std::function`, handling different data types (string, int, double, single and multiline comments, and containers such as lists and groups), and managing operation modes when items already exist before addition.
+The `Config` module of StormByte provides a flexible and human-readable way to manage configuration files. It supports initialization from any `std::istream`, setting pre and post read hooks using `std::function`, handling different [data types](#data-types) and managing operation modes when items already exist before addition.
 
 #### Initialization from `std::istream`
 
@@ -101,22 +101,21 @@ You can set pre and post read hooks using `std::function`. These hooks allow you
 ```cpp
 #include <StormByte/config/config.hxx>
 #include <iostream>
-#include <functional>
 
 using namespace StormByte::Config;
 
-void pre_read_hook(Config& config) {
-    std::cout << "Pre-read hook executed. Current config has " << config.Size() << " items." << std::endl;
+void pre_read_hook(Item::Group& root) {
+    std::cout << "Pre-read hook executed. Current config has " << root.Size() << " items." << std::endl;
 }
 
-void post_read_hook(Config& config) {
-    std::cout << "Post-read hook executed. Current config has " << config.Size() << " items." << std::endl;
+void post_read_hook(Item::Group& root) {
+    std::cout << "Post-read hook executed. Current config has " << root.Size() << " items." << std::endl;
 }
 
 int main() {
     Config config;
-    config.SetPreReadHook(pre_read_hook);
-    config.SetPostReadHook(post_read_hook);
+    config.AddHookBeforeRead(pre_read_hook);
+    config.AddHookAfterRead(post_read_hook);
 
     // Read configuration (hooks will be called accordingly)
     std::ifstream file("config.cfg");
@@ -143,7 +142,7 @@ int main() {
     Config config;
 
     // Set operation mode to replace existing items
-    config.SetOperationMode(Config::OperationMode::Replace);
+    config.OnExistingAction(OnExistingAction::Overwrite);
 
     // Read configuration
     std::ifstream file("config.cfg");
@@ -156,9 +155,9 @@ int main() {
 
 #### Data Types
 
-The configuration supports various data types, including strings, integers, doubles, comments (single and multiline), and containers (lists and groups).
+The configuration supports various data types, including [string](#string), [integer](#integer), [double](#double), comments ([singleline](#singleline) and [multiline](#multiline)), and containers ([list](#list) and [group](#group)).
 
-##### Strings
+##### String
 
 ```plaintext
 username = "example_user"
@@ -178,14 +177,14 @@ int main() {
     file >> config;
     file.close();
 
-    const Item& username = config["username"];
+    const Item::Base& username = config["username"];
     std::cout << "Username: " << username.Value<std::string>() << std::endl;
 
     return 0;
 }
 ```
 
-##### Integers
+##### Integer
 
 ```plaintext
 timeout = 30
@@ -205,14 +204,14 @@ int main() {
     file >> config;
     file.close();
 
-    const Item& timeout = config["timeout"];
+    const Item::Base& timeout = config["timeout"];
     std::cout << "Timeout: " << timeout.Value<int>() << std::endl;
 
     return 0;
 }
 ```
 
-##### Doubles
+##### Double
 
 ```plaintext
 feature_timeout = 60.5
@@ -232,7 +231,7 @@ int main() {
     file >> config;
     file.close();
 
-    const Item& feature_timeout = config["feature_timeout"];
+    const Item::Base& feature_timeout = config["feature_timeout"];
     std::cout << "Feature Timeout: " << feature_timeout.Value<double>() << std::endl;
 
     return 0;
@@ -241,42 +240,34 @@ int main() {
 
 ##### Comments
 
-Single-line comments start with `#`, and multiline comments are enclosed between `/*` and `*/`.
+Configuration files can have comments!
+
+###### Singleline
+
+####### Bash like
+
+Bash like comments start with `#` until the rest of the line
+
+####### C/C++ like
+
+C/C++ like comments start with `//` until the rest of the line
+
+###### Multiline
+Multiline comments are enclosed between `/*` and `*/` (like C/C++ style comments)
 
 ```plaintext
 # This is a single-line comment
 /**
  * This is a multiline comment
  */
+// int = 66; # Which is disabled
 ```
 
-##### Example
+##### Containers
 
-```cpp
-#include <StormByte/config/config.hxx>
-#include <iostream>
+Configuration can have containers with subitems and also subcontainers
 
-using namespace StormByte::Config;
-
-int main() {
-    Config config;
-    std::ifstream file("config.cfg");
-    file >> config;
-    file.close();
-
-    // Retrieve comments using position
-    for (std::size_t i = 0; i < config.Size(); ++i) {
-        const Item& item = config[i];
-        if (item.Type() == Item::Type::Comment) {
-            std::cout << "Comment: " << item.Value<Comment>() << std::endl;
-        }
-    }
-
-    return 0;
-}
-```
-
-##### Containers: Lists
+###### List
 
 Lists are sequences of values enclosed in square brackets `[]` separated by spaces and can contain any other item (including nested lists and groups).
 
@@ -284,7 +275,7 @@ Lists are sequences of values enclosed in square brackets `[]` separated by spac
 favorite_numbers = [3 14 42 "pi constant"]
 ```
 
-##### Example
+####### Example
 
 ```cpp
 #include <StormByte/config/config.hxx>
@@ -298,21 +289,17 @@ int main() {
     file >> config;
     file.close();
 
-    const List& favorite_numbers = config["favorite_numbers"].Value<List>();
+    const Item::List& favorite_numbers = config["favorite_numbers"].Value<List>();
     std::cout << "Favorite Numbers: ";
-    for (const auto& number : favorite_numbers) {
-	if (number.GetType() == Item::Type::Integer)
-            std::cout << number.Value<int>() << " ";
-        else
-            std::cout << number.Value<std::string> << number;
-    }
+    for (const auto& number : favorite_numbers)
+		std::cout << (std::string)number << " ";
     std::cout << std::endl;
 
     return 0;
 }
 ```
 
-##### Containers: Groups
+###### Group
 
 Groups are nested configurations that can contain other key-value pairs, groups, or lists.
 
@@ -323,7 +310,7 @@ settings = {
 }
 ```
 
-##### Example
+####### Example
 
 ```cpp
 #include <StormByte/config/config.hxx>
@@ -337,8 +324,8 @@ int main() {
     file >> config;
     file.close();
 
-    const Item& username = config["settings/username"];
-    const Item& timeout = config["settings/timeout"];
+    const Item::Base& username = config["settings/username"];
+    const Item::Base& timeout = config["settings/timeout"];
     
     std::cout << "Username: " << username.Value<std::string>() << std::endl;
     std::cout << "Timeout: " << timeout.Value<int>() << std::endl;

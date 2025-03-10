@@ -1,7 +1,7 @@
 #pragma once
 
 #include <exception.hxx>
-#include <config/visibility.h>
+#include <config/item/type.hxx>
 
 /**
  * @namespace Config
@@ -55,9 +55,9 @@ namespace StormByte::Config {
 			/**
 			 * Constructor
 			 * @param srctype item type trying to be converted
-			 * @param method method tried to use for converting
+			 * @param dsttype target type
 			 */
-			WrongValueTypeConversion(const std::string& srctype, const std::string& method);
+			WrongValueTypeConversion(const std::string& srctype, const std::string& dsttype);
 
 			/**
 			 * Copy constructor
@@ -132,9 +132,15 @@ namespace StormByte::Config {
 		public:
 			/**
 			 * Constructor
-			 * @param name name which was tried to use
 			 */
-			InvalidName(const std::string& name);
+			InvalidName();
+
+			/**
+			 * Constructor
+			 * @param name name which was tried to use
+			 * @param containertype container type
+			 */
+			InvalidName(const std::string& name, const Item::ContainerType& containertype);
 
 			/**
 			 * Copy operator
