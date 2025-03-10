@@ -1,8 +1,12 @@
-#include <config/comment/multi.hxx>
+#include <config/comment/multiline.hxx>
 
 #include <sstream>
 
 using namespace StormByte::Config::Comment;
+
+MultiLine::MultiLine(const std::string& comment):Base(comment) {}
+
+MultiLine::MultiLine(std::string&& comment):Base(std::move(comment)) {}
 
 std::string MultiLine::Serialize(const int&) const noexcept {
 	// The multiline comments already have the indent

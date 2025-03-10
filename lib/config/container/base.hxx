@@ -30,35 +30,33 @@ namespace StormByte::Config::Container {
 			};
 
 			/**
-			 * Constructor
-			 * @param type container type
-			 */
-			constexpr Base(const Type& type):m_type(type) {}
-
-			/**
 			 * Copy constructor
+			 * @param base container to copy
 			 */
-			constexpr Base(const Base&)				= default;
+			Base(const Base& base)								= default;
 
 			/**
 			 * Move constructor
+			 * @param base container to move
 			 */
-			constexpr Base(Base&&) noexcept			= default;
+			Base(Base&& base) noexcept							= default;
 
 			/**
 			 * Assignment operator
+			 * @param base container to copy
 			 */
-			constexpr Base& operator=(const Base&)	= default;
+			Base& operator=(const Base& base)					= default;
 
 			/**
 			 * Move assignment operator
+			 * @param base container to move
 			 */
-			constexpr Base& operator=(Base&&)			= default;
+			Base& operator=(Base&& base)						= default;
 
 			/**
 			 * Destructor
 			 */
-			constexpr virtual ~Base() noexcept				= default;
+			virtual ~Base() noexcept							= default;
 
 			/**
 			 * Gets a reference to Item by index
@@ -229,7 +227,7 @@ namespace StormByte::Config::Container {
 			 * Get all items in the container
 			 * @return std::span of items
 			 */
-			inline std::span<Item> 								GetItems() noexcept {
+			constexpr std::span<Item> 							Items() noexcept {
 				return std::span(m_items);
 			}
 
@@ -237,7 +235,7 @@ namespace StormByte::Config::Container {
 			 * Get all items in the container
 			 * @return std::span of items
 			 */
-			inline std::span<const Item> 						GetItems() const noexcept {
+			constexpr std::span<const Item> 					Items() const noexcept {
 				return std::span(m_items);
 			}			
 
@@ -245,23 +243,21 @@ namespace StormByte::Config::Container {
 			 * Gets the container type
 			 * @return Container type
 			 */
-			constexpr const Type& 								GetType() const noexcept {
-				return m_type;
-			}
+			constexpr virtual Type 								GetType() const noexcept = 0;
 
 			/**
 			 * Gets the container type
 			 * @return container type
 			 */
-			constexpr std::string 								TypeAsString() const noexcept {
-				return Container::TypeAsString(m_type);
+			inline std::string 									TypeAsString() const noexcept {
+				return Container::TypeAsString(this->GetType());
 			}
 
 			/**
 			 * Gets the number of items in the current level
 			 * @return size_t number of items
 			 */
-			virtual constexpr size_t 							Size() const noexcept {
+			constexpr virtual size_t 							Size() const noexcept {
 				return m_items.size();
 			}
 
@@ -272,13 +268,12 @@ namespace StormByte::Config::Container {
 			virtual size_t 										Count() const noexcept;
 
 		protected:
-			Type 												m_type;		///< Container type
 			std::vector<Item> 									m_items;	///< Items in container
 
 			/**
 			 * Constructor
 			 */
-			constexpr Base()								= default;
+			Base()												= default;
 
 			/**
 			 * Internal function to get item contents as string

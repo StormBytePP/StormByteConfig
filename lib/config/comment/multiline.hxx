@@ -17,42 +17,42 @@ namespace StormByte::Config::Comment {
 			 * Constructor
 			 * @param comment comment string
 			 */
-			constexpr MultiLine(const std::string& comment):Base(comment) {
-				m_type = Type::MultiLine;
-			}
+			MultiLine(const std::string& comment);
 
 			/**
 			 * Move Constructor
 			 * @param comment comment string
 			 */
-			constexpr MultiLine(std::string&& comment):Base(std::move(comment)) {
-				m_type = Type::MultiLine;
-			}
+			MultiLine(std::string&& comment);
 
 			/**
 			 * Copy constructor
+			 * @param multi comment to copy
 			 */
-			constexpr MultiLine(const MultiLine&)						= default;
+			MultiLine(const MultiLine& multi)					= default;
 
 			/**
 			 * Move constructor
+			 * @param multi comment to move
 			 */
-			constexpr MultiLine(MultiLine&&)							= default;
+			MultiLine(MultiLine&& multi)						= default;
 
 			/**
 			 * Assignment operator
+			 * @param multi comment to copy
 			 */
-			constexpr MultiLine& operator=(const MultiLine&)			= default;
+			MultiLine& operator=(const MultiLine& multi)		= default;
 
 			/**
 			 * Move assignment operator
+			 * @param multi comment to move
 			 */
-			constexpr MultiLine& operator=(MultiLine&&)					= default;
+			MultiLine& operator=(MultiLine&& multi)				= default;
 
 			/**
 			 * Destructor
 			 */
-			constexpr ~MultiLine() noexcept override				= default;
+			~MultiLine() noexcept override						= default;
 
 			/**
 			 * Gets the comment string
@@ -71,5 +71,13 @@ namespace StormByte::Config::Comment {
 			 * @return moved object
 			 */
 			PointerType 										Move() override;
+
+			/**
+			 * Gets the comment type
+			 * @return comment type
+			 */
+			constexpr Comment::Type 							GetType() const noexcept override {
+				return Type::MultiLine;
+			}
 	};
 }

@@ -15,13 +15,7 @@ namespace StormByte::Config {
 		class MultiLine;
 		class SingleLine;
 	};
-}
 
-/**
- * @namespace Config
- * @brief All the classes for handling configuration files and items
- */
-namespace StormByte::Config {
 	/**
 	 * @class Config
 	 * @brief Abstract class for a configuration file
@@ -41,32 +35,36 @@ namespace StormByte::Config {
 			/**
 			 * Constructor
 			 */
-			constexpr Config():m_on_existing_action(OnExistingAction::ThrowException) {}
+			Config();
 
 			/**
 			 * Copy constructor
+			 * @param config configuration to copy
 			 */
-			constexpr Config(const Config&)					= default;
+			Config(const Config& config)					= default;
 
 			/**
 			 * Move constructor
+			 * @param config configuration to move
 			 */
-			constexpr Config(Config&&) noexcept				= default;
+			Config(Config&& config) noexcept				= default;
 
 			/**
 			 * Assignment operator
+			 * @param config configuration to assign
 			 */
-			Config& operator=(const Config&)				= default;
+			Config& operator=(const Config& config)			= default;
 
 			/**
 			 * Move assignment operator
+			 * @param config configuration to move
 			 */
-			constexpr Config& operator=(Config&&) noexcept	= default;
+			Config& operator=(Config&& config) noexcept		= default;
 
 			/**
 			 * Destructor
 			 */
-			virtual constexpr ~Config()	override			= default;
+			virtual ~Config() override						= default;
 
 			/**
 			 * Gets a reference to item by path
@@ -256,7 +254,7 @@ namespace StormByte::Config {
 			 * @param on_existing function to select element on collission
 			 * @see Container::OnExistingAction
 			 */
-			constexpr void									SetOnExistingAction(const OnExistingAction& on_existing) {
+			constexpr void									OnExistingAction(const OnExistingAction& on_existing) {
 				m_on_existing_action = on_existing;
 			}
 
@@ -304,18 +302,11 @@ namespace StormByte::Config {
 			 * Takes 3 parameters: current configuration, existing item and new item and will return
 			 * the item to be inserted (or might throw to cancel the insert)
 			 */
-			OnExistingAction m_on_existing_action;												///< Action to take when item name already exists
+			Group::OnExistingAction m_on_existing_action;										///< Action to take when item name already exists
 
 		private:
-			/**
-			 * Container level
-			 */
-			unsigned int 									m_container_level;
-
-			/**
-			 * Current line
-			 */
-			unsigned int 									m_current_line;
+			unsigned int 									m_container_level;					///< Container level
+			unsigned int 									m_current_line;						///< Current line (for parser)
 
 			/**
 			 * Starts parsing

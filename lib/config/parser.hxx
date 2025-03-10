@@ -10,8 +10,8 @@ namespace StormByte::Config::Parser {
 	 * @brief Parsing mode
 	 */
 	enum class Mode: unsigned short {
-		Named, 	///< Named items
-		Unnamed ///< Unnamed items
+		Named, 		///< Named items
+		Unnamed 	///< Unnamed items
 	};
 
 	/**

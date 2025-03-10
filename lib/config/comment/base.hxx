@@ -20,38 +20,42 @@ namespace StormByte::Config::Comment {
 			 * Constructor
 			 * @param comment comment string
 			 */
-			constexpr Base(const std::string& comment):Util::Templates::Clonable<Base>(), m_comment(comment) {}
+			Base(const std::string& comment);
 
 			/**
 			 * Move Constructor
 			 * @param comment comment string
 			 */
-			constexpr Base(std::string&& comment):Util::Templates::Clonable<Base>(), m_comment(std::move(comment)) {};
+			Base(std::string&& comment);
 
 			/**
 			 * Copy constructor
+			 * @param base comment to copy
 			 */
-			constexpr Base(const Base&)					= default;
+			Base(const Base& base)								= default;
 
 			/**
 			 * Move constructor
+			 * @param base comment to move
 			 */
-			constexpr Base(Base&&)						= default;
+			Base(Base&& base)									= default;
 
 			/**
 			 * Assignment operator
+			 * @param base comment to copy
 			 */
-			constexpr Base& operator=(const Base&)		= default;
+			Base& operator=(const Base& base)					= default;
 
 			/**
 			 * Move assignment operator
+			 * @param base comment to move
 			 */
-			constexpr Base& operator=(Base&&)				= default;
+			Base& operator=(Base&& base)						= default;
 
 			/**
 			 * Destructor
 			 */
-			virtual constexpr ~Base() noexcept				= default;
+			virtual ~Base() noexcept							= default;
 
 			/**
 			 * Compares two comments
@@ -157,35 +161,16 @@ namespace StormByte::Config::Comment {
 			 * @return comment string
 			 */
 			constexpr std::string 								TypeAsString() const noexcept {
-				return Comment::TypeAsString(m_type);
+				return Comment::TypeAsString(this->GetType());
 			}
 
 			/**
 			 * Gets the comment string
 			 * @return comment string
 			 */
-			constexpr const Type& 								GetType() const noexcept {
-				return m_type;
-			}
-
-			/**
-			 * Gets the number of items in the current level
-			 * @return size_t number of items
-			 */
-			constexpr size_t 									Size() const noexcept {
-				return 1;
-			}
-
-			/**
-			 * Gets the full number of items
-			 * @return size_t number of items
-			 */
-			constexpr size_t 									Count() const noexcept {
-				return 1;
-			}
+			constexpr virtual Type 								GetType() const noexcept = 0;
 
 		protected:
-			Type 												m_type;		///< Comment type
 			std::string 										m_comment;	///< Comment string
 	};
 }

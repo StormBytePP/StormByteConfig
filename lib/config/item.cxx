@@ -78,14 +78,3 @@ std::string Item::ContentsToString(const int& indent_level) const noexcept {
 	}
 	return serial + "\n";
 }
-
-size_t Item::Count() const noexcept {
-	switch(m_type) {
-		case Type::Container:
-			return 1 + m_value.Get<Container::Base>().Count();
-		case Type::Comment:
-			return m_value.Get<Comment::Base>().Count();
-		default:
-			return 1;
-	}
-}

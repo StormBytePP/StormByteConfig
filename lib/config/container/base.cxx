@@ -37,7 +37,7 @@ bool Base::Exists(const std::string& path) const {
 }
 
 std::string Base::Serialize(const int& indent_level) const noexcept {
-	const auto enclosure_characters = EnclosureCharacters(m_type);
+	const auto enclosure_characters = EnclosureCharacters(this->GetType());
 	std::string serial = std::string(1, enclosure_characters.first) + "\n";
 	serial += ContentsToString(indent_level + 1);
 	serial += Util::String::Indent(indent_level) + enclosure_characters.second;
@@ -47,7 +47,14 @@ std::string Base::Serialize(const int& indent_level) const noexcept {
 size_t Base::Count() const noexcept {
 	size_t count = 0;
 	for (const auto& item : m_items) {
-		count += item.Count();
+		switch(item.GetType()) {
+			case Item::Type::Container:
+				count += 1 + item.Value().Get<Container::Base>().Count();
+				break;
+			default:
+				count++;
+				break;
+		}
 	}
 	return count;
 }

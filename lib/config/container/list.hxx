@@ -22,32 +22,36 @@ namespace StormByte::Config::Container {
 			/**
 			 * Constructor
 			 */
-			constexpr List():Base(Type::List) {}
+			List()									= default;
 
 			/**
 			 * Copy constructor
+			 * @param list List to copy
 			 */
-			List(const List&)					= default;
+			List(const List& list)					= default;
 
 			/**
 			 * Move constructor
+			 * @param list List to move
 			 */
-			List(List&&) noexcept				= default;
+			List(List&& list) noexcept				= default;
 
 			/**
 			 * Assignment operator
+			 * @param list List to assign
 			 */
-			List& operator=(const List&)		= default;
+			List& operator=(const List& list)		= default;
 
 			/**
 			 * Move assignment operator
+			 * @param list List to move
 			 */
-			List& operator=(List&&) noexcept	= default;
+			List& operator=(List&& list) noexcept	= default;
 
 			/**
 			 * Destructor
 			 */
-			~List() noexcept override			= default;
+			~List() noexcept override				= default;
 
 			/**
 			 * Adds an item to the container
@@ -56,7 +60,7 @@ namespace StormByte::Config::Container {
 			 * @throw ItemNameAlreadyExists if item name already exists
 			 * @return reference to added item
 			 */
-			Item&								Add(Item&& item, const OnExistingAction& on_existing = OnExistingAction::ThrowException) override;
+			Item&									Add(Item&& item, const OnExistingAction& on_existing = OnExistingAction::ThrowException) override;
 
 			/**
 			 * Adds an item to the container
@@ -65,7 +69,7 @@ namespace StormByte::Config::Container {
 			 * @throw ItemNameAlreadyExists if item name already exists
 			 * @return reference to added item
 			 */
-			Item&								Add(const Item& item, const OnExistingAction& on_existing = OnExistingAction::ThrowException) override {
+			Item&									Add(const Item& item, const OnExistingAction& on_existing = OnExistingAction::ThrowException) override {
 				Item copy(item);
 				return Add(std::move(copy), on_existing);
 			}
@@ -74,12 +78,20 @@ namespace StormByte::Config::Container {
 			 * Clones the list
 			 * @return cloned list
 			 */
-			PointerType							Clone() const override;
+			PointerType								Clone() const override;
 
 			/**
 			 * Moves the list
 			 * @return moved list
 			 */
-			PointerType							Move() override;
+			PointerType								Move() override;
+
+			/**
+			 * Gets the container type
+			 * @return Container type
+			 */
+			constexpr Container::Type				GetType() const noexcept override {
+				return Type::List;
+			}
 	};
 }

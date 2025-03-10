@@ -1,6 +1,6 @@
 #include <config/config.hxx>
 #include <config/container/list.hxx>
-#include <config/comment/multi.hxx>
+#include <config/comment/multiline.hxx>
 #include <config/comment/single.hxx>
 #include <util/system.hxx>
 
@@ -677,7 +677,7 @@ int duplicated_insertion() {
 int on_name_clash_keep_existing() {
 	int result = 0;
 	Config cfg;
-	cfg.SetOnExistingAction(Container::Base::OnExistingAction::Keep);
+	cfg.OnExistingAction(Container::Base::OnExistingAction::Keep);
 	cfg.Add(Item("testItem", true));
 	try {
 		cfg.Add(Item("testItem", 666));
@@ -696,7 +696,7 @@ int on_name_clash_keep_existing() {
 int on_name_clash_replace() {
 	int result = 0;
 	Config cfg;
-	cfg.SetOnExistingAction(Container::Base::OnExistingAction::Overwrite);
+	cfg.OnExistingAction(Container::Base::OnExistingAction::Overwrite);
 	cfg.Add(Item("testItem", true));
 	try {
 		cfg.Add(Item("testItem", 66));

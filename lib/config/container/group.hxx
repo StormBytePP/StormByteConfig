@@ -22,32 +22,36 @@ namespace StormByte::Config::Container {
 			/**
 			 * Constructor
 			 */
-			constexpr Group():Base(Type::Group) {}
+			Group()												= default;
 
 			/**
 			 * Copy constructor
+			 * @param group group to copy
 			 */
-			constexpr Group(const Group&)					= default;
+			Group(const Group& group)							= default;
 
 			/**
 			 * Move constructor
+			 * @param group group to move
 			 */
-			constexpr Group(Group&&) noexcept				= default;
+			Group(Group&& group) noexcept						= default;
 
 			/**
 			 * Assignment operator
+			 * @param group group to copy
 			 */
-			constexpr Group& operator=(const Group&)		= default;
+			constexpr Group& operator=(const Group& group)		= default;
 
 			/**
 			 * Move assignment operator
+			 * @param group group to move
 			 */
-			constexpr Group& operator=(Group&&) noexcept	= default;
+			constexpr Group& operator=(Group&& group) noexcept	= default;
 
 			/**
 			 * Destructor
 			 */
-			constexpr ~Group() noexcept override			= default;
+			constexpr ~Group() noexcept override				= default;
 
 			/**
 			 * Adds an item to the container
@@ -56,7 +60,7 @@ namespace StormByte::Config::Container {
 			 * @throw ItemNameAlreadyExists if item name already exists
 			 * @return reference to added item
 			 */
-			virtual Item&									Add(Item&& item, const OnExistingAction& on_existing = OnExistingAction::ThrowException) override;
+			virtual Item&										Add(Item&& item, const OnExistingAction& on_existing = OnExistingAction::ThrowException) override;
 
 			/**
 			 * Adds an item to the container
@@ -65,7 +69,7 @@ namespace StormByte::Config::Container {
 			 * @throw ItemNameAlreadyExists if item name already exists
 			 * @return reference to added item
 			 */
-			virtual Item&									Add(const Item& item, const OnExistingAction& on_existing = OnExistingAction::ThrowException) override {
+			virtual Item&										Add(const Item& item, const OnExistingAction& on_existing = OnExistingAction::ThrowException) override {
 				Item copy(item);
 				return Add(std::move(copy), on_existing);
 			}
@@ -74,12 +78,20 @@ namespace StormByte::Config::Container {
 			 * Clones the container
 			 * @return cloned container
 			 */
-			PointerType										Clone() const override;
+			PointerType											Clone() const override;
 
 			/**
 			 * Moves the container
 			 * @return moved container
 			 */
-			PointerType										Move() override;
+			PointerType											Move() override;
+
+			/**
+			 * Gets the container type
+			 * @return Container type
+			 */
+			constexpr Container::Type							GetType() const noexcept override {
+				return Type::Group;
+			}
 	};
 }

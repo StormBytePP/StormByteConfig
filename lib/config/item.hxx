@@ -297,35 +297,10 @@ namespace StormByte::Config {
 				return ContentsToString(indent_level);
 			}
 
-			/**
-			 * Gets the number of items in the current level
-			 * @return size_t number of items
-			 */
-			virtual constexpr size_t					Size() const noexcept {
-				return 1;
-			}
-
-			/**
-			 * Gets the full number of items
-			 * @return size_t number of items
-			 */
-			virtual size_t								Count() const noexcept;
-
 		protected:
-			/**
-			 * Item optional name
-			 */
-			std::optional<std::string>					m_name;	//< Item name
-
-			/**
-			 * Item type
-			 */
-			Type										m_type;	//< Item type
-
-			/**
-			 * Internal value
-			 */
-			ItemStorage										m_value; //< Item value
+			std::optional<std::string>					m_name;		//< Item name
+			Type										m_type;		//< Item type
+			ItemStorage									m_value; 	//< Item value
 
 			/**
 			 * Internal function to get item contents as string

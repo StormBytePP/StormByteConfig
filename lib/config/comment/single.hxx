@@ -17,59 +17,67 @@ namespace StormByte::Config::Comment {
 			 * Constructor
 			 * @param comment comment string
 			 */
-			constexpr SingleLine(const std::string& comment):Base(comment) {
-				m_type = Type::SingleLine;
-			}
+			SingleLine(const std::string& comment);
 
 			/**
 			 * Move Constructor
 			 * @param comment comment string
 			 */
-			constexpr SingleLine(std::string&& comment):Base(std::move(comment)) {
-				m_type = Type::SingleLine;
-			}
+			SingleLine(std::string&& comment);
 
 			/**
 			 * Copy constructor
+			 * @param single comment to copy
 			 */
-			constexpr SingleLine(const SingleLine&)					= default;
+			SingleLine(const SingleLine& single)						= default;
 
 			/**
 			 * Move constructor
+			 * @param single comment to move
 			 */
-			constexpr SingleLine(SingleLine&&)						= default;
+			constexpr SingleLine(SingleLine&& single)					= default;
 
 			/**
 			 * Assignment operator
+			 * @param single comment to copy
 			 */
-			constexpr SingleLine& operator=(const SingleLine&)		= default;
+			constexpr SingleLine& operator=(const SingleLine& single)	= default;
 
 			/**
 			 * Move assignment operator
+			 * @param single comment to move
 			 */
-			constexpr SingleLine& operator=(SingleLine&&)			= default;
+			constexpr SingleLine& operator=(SingleLine&& single)		= default;
 
 			/**
 			 * Destructor
 			 */
-			constexpr ~SingleLine() noexcept override				= default;
+			constexpr ~SingleLine() noexcept override					= default;
 
 			/**
 			 * Gets the comment string
 			 * @return comment string
 			 */
-			std::string 											Serialize(const int& indent_level) const noexcept override;
+			std::string 												Serialize(const int& indent_level) const noexcept override;
 
 			/**
 			 * Clones the object
 			 * @return cloned object
 			 */
-			PointerType												Clone() const override;
+			PointerType													Clone() const override;
 
 			/**
 			 * Moves the object
 			 * @return moved object
 			 */
-			PointerType												Move() override;
+			PointerType													Move() override;
+
+			/**
+			 * Gets the comment type
+			 * @return comment type
+			 */
+			constexpr Comment::Type										GetType() const noexcept override {
+				return Type::SingleLine;
+			}
 	};
 }

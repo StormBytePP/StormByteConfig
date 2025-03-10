@@ -1,6 +1,6 @@
 #include <config/config.hxx>
 #include <config/container/list.hxx>
-#include <config/comment/multi.hxx>
+#include <config/comment/multiline.hxx>
 #include <config/comment/single.hxx>
 
 #include <regex>
@@ -8,9 +8,11 @@
 
 using namespace StormByte::Config;
 
+Config::Config():m_on_existing_action(OnExistingAction::ThrowException) {}
+
 Config& Config::operator<<(const Config& source) {
 	// We will not use serialize for performance reasons
-	for (const auto& item: source.GetItems())
+	for (const auto& item: source.Items())
 		Add(item);
 		
 	return *this;
@@ -62,7 +64,7 @@ std::string& operator<<(std::string& str, const Config& config) { // 8
 
 Config::operator std::string() const {
 	std::string serialized = "";
-	for (const auto& item : GetItems()) {
+	for (const auto& item : Items()) {
 		serialized += item.Serialize(0);
 	}
 	return serialized;
