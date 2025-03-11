@@ -269,6 +269,8 @@ StormByte::Expected<StormByte::Config::Item::Base::PointerType, StormByte::Confi
 							return Unexpected(std::move(res.error()));
 						return list.Move();
 					}
+					default:
+						return Unexpected<ParseError>(m_current_line, "Unknown container type");
 				}
 			}
 			else
@@ -304,6 +306,8 @@ StormByte::Expected<StormByte::Config::Item::Base::PointerType, StormByte::Confi
 			else
 				return Unexpected(std::move(res.error()));
 		}
+		default:
+			return Unexpected<ParseError>(m_current_line, "Unknown item type");
 	}
 }
 
