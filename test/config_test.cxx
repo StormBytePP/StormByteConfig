@@ -1034,6 +1034,24 @@ int all_comment_types_test() {
 	RETURN_TEST("good_double_conf1", result);
 }
 
+int test_on_failure_hook() {
+	int result = 0;
+	Config cfg;
+	cfg.OnParseFailure([](const Item::Base&) { return false; });
+	try {
+		std::fstream file;
+		file.open(CurrentFileDirectory / "files" / "bad_config1.conf", std::ios::in);
+		cfg << file;
+		file.close();
+	}
+	catch(const StormByte::Config::Exception&) {
+		//NOT Expected exception
+		result = 1;
+	}
+	
+	RETURN_TEST("test_on_failure_hook", result);
+}
+
 int main() {
     int result = 0;
     try {
@@ -1079,6 +1097,7 @@ int main() {
 		result += test_config_hooks();
 		result += size_and_count();
 		result += all_comment_types_test();
+		result += test_on_failure_hook();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;

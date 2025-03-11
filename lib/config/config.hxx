@@ -255,6 +255,14 @@ namespace StormByte::Config {
 			}
 
 			/**
+			 * Sets a function to execute on failure
+			 * @param hook function to execute
+			 */
+			constexpr void											OnParseFailure(OnFailureHook hook) {
+				m_on_parse_failure_hook = hook;
+			}
+
+			/**
 			 * Adds a hook which will take Config as parameter and will be executed before read start
 			 * Hooks will be executed *in order*
 			 */
@@ -311,6 +319,7 @@ namespace StormByte::Config {
 			 */
 			HookFunctions 											m_before_read_hooks;				///< Hooks executed before reading
 			HookFunctions											m_after_read_hooks;					///< Hooks executed after successful reading
+			OptionalFailureHook										m_on_parse_failure_hook;			///< Hook executed on failure
 
 			/**
 			 * Function to override the default action when duplicate name is found when inserting

@@ -14,13 +14,13 @@ Config& Config::operator<<(const Config& source) {
 }
 
 void Config::operator<<(std::istream& istream) { // 1
-	auto res = Parser::Parse(istream, m_root, m_on_existing_action, m_before_read_hooks, m_after_read_hooks);
+	auto res = Parser::Parse(istream, m_root, m_on_existing_action, m_before_read_hooks, m_after_read_hooks, m_on_parse_failure_hook);
 	if (!res)
 		throw *res.error();
 }
 
 void Config::operator<<(const std::string& str) { // 2
-	auto res = Parser::Parse(str, m_root, m_on_existing_action, m_before_read_hooks, m_after_read_hooks);
+	auto res = Parser::Parse(str, m_root, m_on_existing_action, m_before_read_hooks, m_after_read_hooks, m_on_parse_failure_hook);
 	if (!res)
 		throw *res.error();
 }

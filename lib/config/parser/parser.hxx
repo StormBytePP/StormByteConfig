@@ -58,7 +58,7 @@ namespace StormByte::Config::Parser {
 			 * @param before hooks to call before parsing
 			 * @param after hooks to call after parsing
 			 */
-			static Expected<void, ParseError>						Parse(std::istream& stream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
+			static Expected<void, ParseError>						Parse(std::istream& stream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after, const OptionalFailureHook& on_failure);
 
 			/**
 			 * Parse a configuration file
@@ -67,7 +67,7 @@ namespace StormByte::Config::Parser {
 			 * @param action action to take when a name is already in use
 			 * @return Group with parsed information
 			 */
-			static Expected<void, ParseError>						Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
+			static Expected<void, ParseError>						Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after, const OptionalFailureHook& on_failure);
 
 		private:
 			unsigned int 											m_container_level;					///< Container level
@@ -174,7 +174,7 @@ namespace StormByte::Config::Parser {
 	 * @throws ParserError If parse errors are found
 	 * @return Group with parsed information
 	 */
-	Expected<void, ParseError> STORMBYTE_CONFIG_PRIVATE 			Parse(std::istream& stream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
+	Expected<void, ParseError> STORMBYTE_CONFIG_PRIVATE 			Parse(std::istream& stream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after, const OptionalFailureHook& on_failure);
 
 	/**
 	 * Shortcut for Parser static Parse method
@@ -184,5 +184,5 @@ namespace StormByte::Config::Parser {
 	 * @throws ParserError If parse errors are found
 	 * @return Group with parsed information
 	 */
-	Expected<void, ParseError> STORMBYTE_CONFIG_PRIVATE 			Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
+	Expected<void, ParseError> STORMBYTE_CONFIG_PRIVATE 			Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after, const OptionalFailureHook& on_failure);
 }

@@ -10,7 +10,7 @@ const std::regex Parser::c_int_regex(R"(^[+-]?\d+$)");
 Parser::Parser(const OnExistingAction& action):
 m_container_level(0), m_current_line(1), c_on_existing_action(action) {}
 
-StormByte::Expected<void, StormByte::Config::ParseError> Parser::Parse(std::istream& istream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
+StormByte::Expected<void, StormByte::Config::ParseError> Parser::Parse(std::istream& istream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after, const OptionalFailureHook& on_failure) {
 	// Create parser
 	Parser parser(action);
 
@@ -19,17 +19,25 @@ StormByte::Expected<void, StormByte::Config::ParseError> Parser::Parse(std::istr
 		hook(root);
 	auto res = parser.Parse(istream, root, Mode::Named);
 	
-	if (!res)
-		return Unexpected(std::move(res.error()));
+	if (!res) {
+		bool should_throw = true;
+		if (on_failure)
+			should_throw = (*on_failure)(root);
+
+		if (should_throw)
+			return Unexpected(std::move(res.error()));
+		else
+			return {};
+	}
 
 	for (const auto& hook: after)
 		hook(root);
 	return {};
 }
 
-StormByte::Expected<void, StormByte::Config::ParseError> Parser::Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
+StormByte::Expected<void, StormByte::Config::ParseError> Parser::Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after, const OptionalFailureHook& on_failure) {
 	std::istringstream istream(string);
-	return Parse(istream, root, action, before, after);
+	return Parse(istream, root, action, before, after, on_failure);
 }
 
 template<> StormByte::Expected<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::MultiLineC>, StormByte::Config::ParseError> Parser::ParseValue<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::MultiLineC>>(std::istream& istream) {
@@ -495,11 +503,11 @@ std::string Parser::GetStringIgnoringWS(std::istream& istream) {
 }
 
 namespace StormByte::Config::Parser {
-	StormByte::Expected<void, StormByte::Config::ParseError> Parse(std::istream& stream, Item::Group& root, const StormByte::Config::OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
-		return Parser::Parse(stream, root, action, before, after);
+	StormByte::Expected<void, StormByte::Config::ParseError> Parse(std::istream& stream, Item::Group& root, const StormByte::Config::OnExistingAction& action, const HookFunctions& before, const HookFunctions& after, const OptionalFailureHook& on_failure) {
+		return Parser::Parse(stream, root, action, before, after, on_failure);
 	}
 
-	StormByte::Expected<void, StormByte::Config::ParseError> Parse(const std::string& string, Item::Group& root, const StormByte::Config::OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
-		return Parser::Parse(string, root, action, before, after);
+	StormByte::Expected<void, StormByte::Config::ParseError> Parse(const std::string& string, Item::Group& root, const StormByte::Config::OnExistingAction& action, const HookFunctions& before, const HookFunctions& after, const OptionalFailureHook& on_failure) {
+		return Parser::Parse(string, root, action, before, after, on_failure);
 	}
 }
