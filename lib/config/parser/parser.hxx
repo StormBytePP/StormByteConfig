@@ -1,6 +1,8 @@
 #pragma once
 
+#include <alias.hxx>
 #include <config/alias.hxx>
+#include <config/exception.hxx>
 #include <config/item/comment.hxx>
 #include <config/item/group.hxx>
 #include <config/item/list.hxx>
@@ -55,25 +57,22 @@ namespace StormByte::Config::Parser {
 			 * @param action action to take when a name is already in use
 			 * @param before hooks to call before parsing
 			 * @param after hooks to call after parsing
-			 * @throws ParserError If parse errors are found
-			 * @return Group with parsed information
 			 */
-			static Item::Group 										Parse(std::istream& stream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
+			static Expected<void, ParseError>						Parse(std::istream& stream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
 
 			/**
 			 * Parse a configuration file
 			 * @param string input string
 			 * @param root root group to start
 			 * @param action action to take when a name is already in use
-			 * @throws ParserError If parse errors are found
 			 * @return Group with parsed information
 			 */
-			static Item::Group 										Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
+			static Expected<void, ParseError>						Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
 
 		private:
 			unsigned int 											m_container_level;					///< Container level
 			unsigned int 											m_current_line;						///< Current line (for parser)
-			const OnExistingAction 				c_on_existing_action;				///< Action to take when item name already exists
+			const OnExistingAction 									c_on_existing_action;				///< Action to take when item name already exists
 			static const std::regex 								c_double_regex;						///< Double detection regex
 			static const std::regex 								c_int_regex;						///< Integer detection regex
 
@@ -94,7 +93,7 @@ namespace StormByte::Config::Parser {
 			 * @param istream input stream
 			 * @return parsed value
 			 */
-			template<typename T> T									ParseValue(std::istream& istream);
+			template<typename T> Expected<T, ParseError>			ParseValue(std::istream& istream);
 
 			/**
 			 * Finds a comment and returns its type
@@ -108,45 +107,43 @@ namespace StormByte::Config::Parser {
 			 * @param istream input stream
 			 * @param container container to put comments to
 			 */
-			void													FindAndParseComments(std::istream& istream, Item::Container& container);
+			Expected<void, ParseError>								FindAndParseComments(std::istream& istream, Item::Container& container);
 
 			/**
 			 * Parses an item
 			 * @param istream input stream
 			 * @param type item type
-			 * @throw ParseError if item is invalid
 			 * @return parsed item
 			 */
-			Item::Base::PointerType									ParseItem(std::istream& istream, const Item::Type& type);
+			Expected<Item::Base::PointerType, ParseError>			ParseItem(std::istream& istream, const Item::Type& type);
 
 			/**
 			 * Parses a group
 			 * @param istream input stream
 			 * @param container Container to put data to
 			 */
-			void 													Parse(std::istream& istream, Item::Container& container, const Mode& mode);
+			Expected<void, ParseError>								Parse(std::istream& istream, Item::Container& container, const Mode& mode);
 
 			/**
 			 * Parses an item name
 			 * @param istream input stream
-			 * @throw ParseError if name is invalid
 			 * @return item name
 			 */
-			std::string 											ParseItemName(std::istream& istream);
+			Expected<std::string, ParseError>						ParseItemName(std::istream& istream);
 
 			/**
 			 * Parses an item type
 			 * @param istream input stream
 			 * @return item type
 			 */
-			Item::Type												ParseType(std::istream& istream);
+			Expected<Item::Type, ParseError>						ParseType(std::istream& istream);
 
 			/**
 			 * Parses a container type
 			 * @param istream input stream
 			 * @return container type
 			 */
-			Item::ContainerType 									ParseContainerType(std::istream& istream);
+			Expected<Item::ContainerType, ParseError>				ParseContainerType(std::istream& istream);
 
 			/**
 			 * Finds the container end symbol
@@ -177,7 +174,7 @@ namespace StormByte::Config::Parser {
 	 * @throws ParserError If parse errors are found
 	 * @return Group with parsed information
 	 */
-	Item::Group STORMBYTE_CONFIG_PRIVATE 							Parse(std::istream& stream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
+	Expected<void, ParseError> STORMBYTE_CONFIG_PRIVATE 			Parse(std::istream& stream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
 
 	/**
 	 * Shortcut for Parser static Parse method
@@ -187,5 +184,5 @@ namespace StormByte::Config::Parser {
 	 * @throws ParserError If parse errors are found
 	 * @return Group with parsed information
 	 */
-	Item::Group STORMBYTE_CONFIG_PRIVATE 							Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
+	Expected<void, ParseError> STORMBYTE_CONFIG_PRIVATE 			Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after);
 }

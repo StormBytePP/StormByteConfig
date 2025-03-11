@@ -10,25 +10,29 @@ const std::regex Parser::c_int_regex(R"(^[+-]?\d+$)");
 Parser::Parser(const OnExistingAction& action):
 m_container_level(0), m_current_line(1), c_on_existing_action(action) {}
 
-StormByte::Config::Item::Group Parser::Parse(std::istream& istream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
+StormByte::Expected<void, StormByte::Config::ParseError> Parser::Parse(std::istream& istream, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
 	// Create parser
 	Parser parser(action);
 
 	// Execute before hooks
 	for (const auto& hook: before)
 		hook(root);
-	parser.Parse(istream, root, Mode::Named);
+	auto res = parser.Parse(istream, root, Mode::Named);
+	
+	if (!res)
+		return Unexpected(std::move(res.error()));
+
 	for (const auto& hook: after)
 		hook(root);
-	return root;
+	return {};
 }
 
-StormByte::Config::Item::Group Parser::Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
+StormByte::Expected<void, StormByte::Config::ParseError> Parser::Parse(const std::string& string, Item::Group& root, const OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
 	std::istringstream istream(string);
 	return Parse(istream, root, action, before, after);
 }
 
-template<> StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::MultiLineC> Parser::ParseValue<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::MultiLineC>>(std::istream& istream) {
+template<> StormByte::Expected<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::MultiLineC>, StormByte::Config::ParseError> Parser::ParseValue<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::MultiLineC>>(std::istream& istream) {
 	bool comment_closed = false;
 	char c;
 	std::string buffer;
@@ -52,62 +56,62 @@ template<> StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType
 	}
 
 	if (!comment_closed || istream.eof() || istream.fail())
-		throw ParseError(m_current_line, "Unclosed MultiLineC comment");
+		return Unexpected<ParseError>(m_current_line, "Unclosed MultiLineC comment");
 
 	return Item::Comment<Item::CommentType::MultiLineC>(std::move(buffer));
 }
 
-template<> StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::SingleLineBash> Parser::ParseValue<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::SingleLineBash>>(std::istream& istream) {
+template<> StormByte::Expected<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::SingleLineBash>, StormByte::Config::ParseError> Parser::ParseValue<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::SingleLineBash>>(std::istream& istream) {
 	std::string line;
 	std::getline(istream, line);
 	m_current_line++;
 	return Item::Comment<Item::CommentType::SingleLineBash>(std::move(line));
 }
 
-template<> StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::SingleLineC> Parser::ParseValue<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::SingleLineC>>(std::istream& istream) {
+template<> StormByte::Expected<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::SingleLineC>, StormByte::Config::ParseError> Parser::ParseValue<StormByte::Config::Item::Comment<StormByte::Config::Item::CommentType::SingleLineC>>(std::istream& istream) {
 	std::string line;
 	std::getline(istream, line);
 	m_current_line++;
 	return Item::Comment<Item::CommentType::SingleLineC>(std::move(line));
 }
 
-template<> double Parser::ParseValue<double>(std::istream& istream) {
+template<> StormByte::Expected<double, StormByte::Config::ParseError> Parser::ParseValue<double>(std::istream& istream) {
 	const std::string buffer = GetStringIgnoringWS(istream);
 
 	// std::stod just ignore extra characters so we better check
 	if (!std::regex_match(buffer, c_double_regex))
-		throw ParseError(m_current_line, "Failed to parse double value '" + buffer + "'");
+		return Unexpected<ParseError>(m_current_line, "Failed to parse double value '" + buffer + "'");
 	try {
 		double result = std::stod(buffer);
 		return result;
 	}
 	catch (std::invalid_argument&) {
-		throw ParseError(m_current_line, "Failed to parse double value near ");
+		return Unexpected<ParseError>(m_current_line, "Failed to parse double value");
 	}
 	catch (std::out_of_range&) {
-		throw ParseError(m_current_line, "Double value " + buffer + " out of range");
+		return Unexpected<ParseError>(m_current_line, "Double value " + buffer + " out of range");
 	}
 }
 
-template<> int Parser::ParseValue<int>(std::istream& istream) {
+template<> StormByte::Expected<int, StormByte::Config::ParseError> Parser::ParseValue<int>(std::istream& istream) {
 	const std::string buffer = GetStringIgnoringWS(istream);
 
 	// stoi will ignore extra characters so we force check
 	if (!std::regex_match(buffer, c_int_regex))
-		throw ParseError(m_current_line, "Failed to parse integer value '" + buffer + '"');
+		return Unexpected<ParseError>(m_current_line, "Failed to parse integer value '" + buffer + '"');
 	try {
 		int result = std::stoi(buffer);
 		return result;
 	}
 	catch (std::invalid_argument&) {
-		throw ParseError(m_current_line, "Failed to parse integer value '" + buffer + '"');
+		return Unexpected<ParseError>(m_current_line, "Failed to parse integer value '" + buffer + '"');
 	}
 	catch (std::out_of_range&) {
-		throw ParseError(m_current_line, "Integer value " + buffer + " out of range");
+		return Unexpected<ParseError>(m_current_line, "Integer value " + buffer + " out of range");
 	}
 }
 
-template<> std::string Parser::ParseValue<std::string>(std::istream& istream) {
+template<> StormByte::Expected<std::string, StormByte::Config::ParseError> Parser::ParseValue<std::string>(std::istream& istream) {
 	ConsumeWS(istream);
 	std::string accumulator;
 	// Guesser already detected the opened " so we skip it
@@ -115,7 +119,7 @@ template<> std::string Parser::ParseValue<std::string>(std::istream& istream) {
 	bool string_closed = false;
 
 	if (istream.eof())
-		throw ParseError(m_current_line, "String content was expected but found EOF");
+		return Unexpected<ParseError>(m_current_line, "String content was expected but found EOF");
 
 	// Do not skip space characters
 	bool escape_next = false;
@@ -138,7 +142,7 @@ template<> std::string Parser::ParseValue<std::string>(std::istream& istream) {
 					accumulator += '\t';
 					break;
 				default:
-					throw ParseError(m_current_line, std::string("Invalid escape sequence: \\") + std::string(1, c));
+					return Unexpected<ParseError>(m_current_line, std::string("Invalid escape sequence: \\") + std::string(1, c));
 					break;
 			}
 			escape_next = false;
@@ -163,15 +167,15 @@ template<> std::string Parser::ParseValue<std::string>(std::istream& istream) {
 
 	end:
 	if (!string_closed)
-		throw ParseError(m_current_line, "Expected string closure but got EOF");
+		return Unexpected<ParseError>(m_current_line, "Expected string closure but got EOF");
 
 	return accumulator;
 }
 
-template<> bool Parser::ParseValue<bool>(std::istream& istream) {
+template<> StormByte::Expected<bool, StormByte::Config::ParseError> Parser::ParseValue<bool>(std::istream& istream) {
 	const std::string buffer = GetStringIgnoringWS(istream);
 	if (buffer != "true" && buffer != "false")
-		throw ParseError(m_current_line, "Failed to parse boolean value '" + buffer + "'");
+		return Unexpected<ParseError>(m_current_line, "Failed to parse boolean value '" + buffer + "'");
 	return buffer == "true";
 }
 
@@ -201,88 +205,148 @@ CommentType Parser::FindComment(std::istream& istream) {
 	return CommentType::None;
 }
 
-void Parser::FindAndParseComments(std::istream& istream, Item::Container& container) {
+StormByte::Expected<void, StormByte::Config::ParseError> Parser::FindAndParseComments(std::istream& istream, Item::Container& container) {
 	CommentType type;
 	while ((type = FindComment(istream)) != CommentType::None) {
 		switch (type) {
-			case CommentType::SingleLineBash:
-				container.Add(ParseValue<Item::Comment<Item::CommentType::SingleLineBash>>(istream));
+			case CommentType::SingleLineBash: {
+				auto res = ParseValue<Item::Comment<Item::CommentType::SingleLineBash>>(istream);
+				if (res)
+					container.Add(std::move(res.value()));
+				else
+					return Unexpected(std::move(res.error()));
 				break;
-				case CommentType::SingleLineC:
-				container.Add(ParseValue<Item::Comment<Item::CommentType::SingleLineC>>(istream));
+			}
+			case CommentType::SingleLineC: {
+				auto res = ParseValue<Item::Comment<Item::CommentType::SingleLineC>>(istream);
+				if (res)
+					container.Add(std::move(res.value()));
+				else
+					return Unexpected(std::move(res.error()));
 				break;
-			case CommentType::MultiLineC:
-				container.Add(ParseValue<Item::Comment<Item::CommentType::MultiLineC>>(istream));
+			}
+			case CommentType::MultiLineC: {
+				auto res = ParseValue<Item::Comment<Item::CommentType::MultiLineC>>(istream);
+				if (res)
+					container.Add(std::move(res.value()));
+				else
+					return Unexpected(std::move(res.error()));
 				break;
+			}
 			case CommentType::None:
-				return;
+				return {};
+		}
+	}
+	return {};
+}
+
+StormByte::Expected<StormByte::Config::Item::Base::PointerType, StormByte::Config::ParseError> Parser::ParseItem(std::istream& istream, const Item::Type& type) {
+	switch(type) {
+		case Item::Type::Container: {
+			m_container_level++;
+			auto container_type = ParseContainerType(istream);
+			if (container_type) {
+				switch (container_type.value()) {
+					case Item::ContainerType::Group: {
+						Item::Group group;
+						auto res = Parse(istream, group, Mode::Named);
+						if (!res)
+							return Unexpected(std::move(res.error()));
+						return group.Move();
+					}
+					case Item::ContainerType::List: {
+						Item::List list;
+						auto res = Parse(istream, list, Mode::Unnamed);
+						if (!res)
+							return Unexpected(std::move(res.error()));
+						return list.Move();
+					}
+				}
+			}
+			else
+				return Unexpected(std::move(container_type.error()));
+		}
+		case Item::Type::Comment: // Not handled here but make compiler not emit any warning
+			return nullptr;
+		case Item::Type::String: {
+			auto res = ParseValue<std::string>(istream);
+			if (res)
+				return Item::Base::MakePointer<Item::Value<std::string>>(std::move(res.value()));
+			else
+				return Unexpected(std::move(res.error()));
+		}
+		case Item::Type::Integer: {
+			auto res = ParseValue<int>(istream);
+			if (res)
+				return Item::Base::MakePointer<Item::Value<int>>(std::move(res.value()));
+			else
+				return Unexpected(std::move(res.error()));
+		}
+		case Item::Type::Double: {
+			auto res = ParseValue<double>(istream);
+			if (res)
+				return Item::Base::MakePointer<Item::Value<double>>(std::move(res.value()));
+			else
+				return Unexpected(std::move(res.error()));
+		}
+		case Item::Type::Bool: {
+			auto res = ParseValue<bool>(istream);
+			if (res)
+				return Item::Base::MakePointer<Item::Value<bool>>(std::move(res.value()));
+			else
+				return Unexpected(std::move(res.error()));
 		}
 	}
 }
 
-StormByte::Config::Item::Base::PointerType Parser::ParseItem(std::istream& istream, const Item::Type& type) {
-	switch(type) {
-		case Item::Type::Container:
-			m_container_level++;
-			switch (ParseContainerType(istream)) {
-				case Item::ContainerType::Group: {
-					Item::Group group;
-					Parse(istream, group, Mode::Named);
-					return group.Move();
-				}
-				case Item::ContainerType::List: {
-					Item::List list;
-					Parse(istream, list, Mode::Unnamed);
-					return list.Move();
-				}
-			}
-			break;
-		case Item::Type::Comment: // Not handled here but make compiler not emit any warning
-			return nullptr;
-		case Item::Type::String:
-			return Item::Base::MakePointer<Item::Value<std::string>>(ParseValue<std::string>(istream));
-		case Item::Type::Integer:
-			return Item::Base::MakePointer<Item::Value<int>>(ParseValue<int>(istream));
-		case Item::Type::Double:
-			return Item::Base::MakePointer<Item::Value<double>>(ParseValue<double>(istream));
-		case Item::Type::Bool:
-			return Item::Base::MakePointer<Item::Value<bool>>(ParseValue<bool>(istream));
-	}
-	return nullptr;
-}
-
-void Parser::Parse(std::istream& istream, Item::Container& container, const Mode& mode) {
+StormByte::Expected<void, StormByte::Config::ParseError> Parser::Parse(std::istream& istream, Item::Container& container, const Mode& mode) {
 	bool halt = false;
-	FindAndParseComments(istream, container);
+	auto res = FindAndParseComments(istream, container);
+	if (!res)
+		return Unexpected(std::move(res.error()));
 	while (!halt && !istream.eof()) {
 		std::string item_name;
 
 		if (mode == Mode::Named) {
 			// Item Name
-			item_name = ParseItemName(istream);
+			auto res = ParseItemName(istream);
+			if (res)
+				item_name = std::move(res.value());
+			else
+				return Unexpected(std::move(res.error()));
 			
 			// Equal expected
 			std::string equal = GetStringIgnoringWS(istream);
 			if (equal != "=") {
-				throw ParseError(m_current_line, "Expected '=' after item name " + item_name + " but got " + equal);
+				return Unexpected<ParseError>(m_current_line, "Expected '=' after item name " + item_name + " but got " + equal);
 			}
 		}
 
 		// Guessing type
-		Item::Type type = ParseType(istream);
-		auto item = ParseItem(istream, type);
+		auto type_res = ParseType(istream);
+		if (!type_res)
+			return Unexpected(std::move(type_res.error()));
+		Item::Type type = type_res.value();
+
+		auto item_res = ParseItem(istream, type);
+		if (!item_res)
+			return Unexpected(std::move(item_res.error()));
+
+		auto item = std::move(item_res.value());
 
 		if (mode == Mode::Named)
 			item->Name(std::move(item_name));
 
 		container.Add(item, c_on_existing_action);
 
-		FindAndParseComments(istream, container);
+		res = FindAndParseComments(istream, container);
+		if (!res)
+			return Unexpected(std::move(res.error()));
 
 		if (FindContainerEnd(istream, container.ContainerType())) {
 			// If it is encountered on level 0 it is a syntax error
 			if (m_container_level == 0)
-				throw ParseError(m_current_line, "Unexpected container end symbol");
+				return Unexpected<ParseError>(m_current_line, "return Unexpected container end symbol");
 			else
 				m_container_level--;
 			
@@ -291,22 +355,23 @@ void Parser::Parse(std::istream& istream, Item::Container& container, const Mode
 
 		if (istream.fail()) {
 			if (m_container_level > 0)
-				throw ParseError(m_current_line, "Unexpected EOF");
+				return Unexpected<ParseError>(m_current_line, "return Unexpected EOF");
 			else
 				halt = true;
 		}
 	}
+	return {};
 }
 
-std::string Parser::ParseItemName(std::istream& istream) {
+StormByte::Expected<std::string, StormByte::Config::ParseError> Parser::ParseItemName(std::istream& istream) {
 	const std::string name = GetStringIgnoringWS(istream);
 	if (!Item::IsNameValid(name)) {
-		throw ParseError(m_current_line, "Invalid item name: " + name);
+		return Unexpected<ParseError>(m_current_line, "Invalid item name: " + name);
 	}
 	return name;
 }
 
-StormByte::Config::Item::Type Parser::ParseType(std::istream& istream) {
+StormByte::Expected<StormByte::Config::Item::Type, StormByte::Config::ParseError> Parser::ParseType(std::istream& istream) {
 	/**** THIS FUNCTION ONLY DETECTS TYPE NOT CHECKS FOR VALIDITY *****/
 	std::unique_ptr<Item::Type> type;
 	ConsumeWS(istream);
@@ -352,14 +417,14 @@ StormByte::Config::Item::Type Parser::ParseType(std::istream& istream) {
 			type = std::make_unique<Item::Type>(Item::Type::Bool);
 			break;
 		default: {
-			throw ParseError(m_current_line, "Unexpected " + std::string(1, line[0]) + " when parsing item type");
+			return Unexpected<ParseError>(m_current_line, "return Unexpected " + std::string(1, line[0]) + " when parsing item type");
 		}
 	}
 	istream.seekg(start_position);
 	return *type;
 }
 
-StormByte::Config::Item::ContainerType Parser::ParseContainerType(std::istream& istream) {
+StormByte::Expected<StormByte::Config::Item::ContainerType, StormByte::Config::ParseError> Parser::ParseContainerType(std::istream& istream) {
 	/**** THIS FUNCTION ONLY DETECTS TYPE NOT CHECKS FOR VALIDITY *****/
 	char c = '\0';
 	ConsumeWS(istream);
@@ -368,7 +433,7 @@ StormByte::Config::Item::ContainerType Parser::ParseContainerType(std::istream& 
 		return Item::TypeFromStartCharacter(c);
 	}
 	catch (const StormByte::Exception&) {
-		throw ParseError(m_current_line, "Unknown start character " + std::string(1, c) + " for container");
+		return Unexpected<ParseError>(m_current_line, "Unknown start character " + std::string(1, c) + " for container");
 	}
 }
 
@@ -430,11 +495,11 @@ std::string Parser::GetStringIgnoringWS(std::istream& istream) {
 }
 
 namespace StormByte::Config::Parser {
-	StormByte::Config::Item::Group Parse(std::istream& stream, Item::Group& root, const StormByte::Config::OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
+	StormByte::Expected<void, StormByte::Config::ParseError> Parse(std::istream& stream, Item::Group& root, const StormByte::Config::OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
 		return Parser::Parse(stream, root, action, before, after);
 	}
 
-	StormByte::Config::Item::Group Parse(const std::string& string, Item::Group& root, const StormByte::Config::OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
+	StormByte::Expected<void, StormByte::Config::ParseError> Parse(const std::string& string, Item::Group& root, const StormByte::Config::OnExistingAction& action, const HookFunctions& before, const HookFunctions& after) {
 		return Parser::Parse(string, root, action, before, after);
 	}
 }
