@@ -60,9 +60,10 @@ namespace StormByte::Config::Item {
 	 */
 	constexpr std::string STORMBYTE_CONFIG_PUBLIC TypeToString(const CommentType& t) noexcept {
 		switch(t) {
-			case CommentType::SingleLineBash: 	return "SingleLineBash";
-			case CommentType::MultiLineC: 	return "MultiLineC";
-			default: 						return "Unknown";
+			case CommentType::SingleLineBash: 	return "Bash like single line comment";
+			case CommentType::SingleLineC: 		return "C++ like single line comment";
+			case CommentType::MultiLineC: 		return "C/C++ like multi line comment";
+			default: 							return "Unknown";
 		}
 	}
 
