@@ -1,10 +1,10 @@
 include(GNUInstallDirs)
 
 # Sources
-file(GLOB_RECURSE STORMBYTE_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/*.cxx")
+file(GLOB_RECURSE STORMBYTE_CONFIG_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/*.cxx")
 
 # Library
-add_library(StormByte-Config SHARED ${STORMBYTE_SOURCES})
+add_library(StormByte-Config SHARED ${STORMBYTE_CONFIG_SOURCES})
 add_library(StormByte::Config ALIAS StormByte-Config)
 target_link_libraries(StormByte-Config PUBLIC StormByte)
 set_target_properties(StormByte-Config PROPERTIES
