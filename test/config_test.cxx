@@ -999,8 +999,8 @@ int size_and_count() {
 		file.open(CurrentFileDirectory / "files" / "complex_conf1.conf", std::ios::in);
 		cfg << file;
 		file.close();
-		const size_t size = cfg.Size();
-		const size_t count = cfg.Count();
+		const std::size_t size = cfg.Size();
+		const std::size_t count = cfg.Count();
 		ASSERT_EQUAL("size_and_count", 4, size);
 		ASSERT_EQUAL("size_and_count", 24, count);
 	}
