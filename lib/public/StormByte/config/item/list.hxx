@@ -1,6 +1,6 @@
 #pragma once
 
-#include <config/item/container.hxx>
+#include <StormByte/config/item/container.hxx>
 
 /**
  * @namespace Item
@@ -8,77 +8,77 @@
  */
 namespace StormByte::Config::Item {
 	/**
-	 * @class Group
-	 * @brief Group in configuration item which can hold other items and also subgroups and sublists recursivelly separated by spaces
+	 * @class List
+	 * @brief List in configuration item which can hold other items and also subgroups and sublists recursivelly separated by spaces
 	 * @code
-	 * settings = {
-	 * 		username = "StormByte"
-	 * 		credit = 66.5
-	 * }
+	 * include_dirs = [
+	 * 		"/usr/include"
+	 * 		"/usr/local/include"
+	 * ]
 	 * @endcode
 	 */
-	class STORMBYTE_CONFIG_PUBLIC Group: public Container {
+	class STORMBYTE_CONFIG_PUBLIC List final: public Container {
 		public:
 			/**
 			 * Constructor
 			 */
-			Group()												= default;
+			List()												= default;
 
 			/**
 			 * Constructor
-			 * @param name group name
+			 * @param name list name
 			 */
-			Group(const std::string& name);
+			List(const std::string& name);
 
 			/**
 			 * Constructor
-			 * @param name group name
+			 * @param name list name
 			 */
-			Group(std::string&& name);
+			List(std::string&& name);
 
 			/**
 			 * Copy constructor
-			 * @param group group to copy
+			 * @param list List to copy
 			 */
-			Group(const Group& group)							= default;
+			List(const List& list)								= default;
 
 			/**
 			 * Move constructor
-			 * @param group group to move
+			 * @param list List to move
 			 */
-			Group(Group&& group) noexcept						= default;
+			List(List&& list) noexcept							= default;
 
 			/**
 			 * Assignment operator
-			 * @param group group to copy
+			 * @param list List to assign
 			 */
-			Group& operator=(const Group& group)				= default;
+			List& operator=(const List& list)					= default;
 
 			/**
 			 * Move assignment operator
-			 * @param group group to move
+			 * @param list List to move
 			 */
-			Group& operator=(Group&& group) noexcept			= default;
+			List& operator=(List&& list) noexcept				= default;
 
 			/**
 			 * Destructor
 			 */
-			~Group() noexcept override							= default;
+			~List() noexcept override							= default;
 
 			/**
-			 * Clones the container
-			 * @return cloned container
+			 * Clones the list
+			 * @return cloned list
 			 */
 			inline PointerType									Clone() const override {
-				return MakePointer<Group>(*this);
+				return MakePointer<List>(*this);
 			}
 
 			/**
-			 * Moves the container
-			 * @return moved container
+			 * Moves the list
+			 * @return moved list
 			 */
 			inline PointerType									Move() override {
-				return MakePointer<Group>(std::move(*this));
+				return MakePointer<List>(std::move(*this));
 			}
 
 			/**
@@ -86,7 +86,7 @@ namespace StormByte::Config::Item {
 			 * @return Container type
 			 */
 			constexpr Item::ContainerType						ContainerType() const noexcept override {
-				return ContainerType::Group;
+				return ContainerType::List;
 			}
 
 		private:

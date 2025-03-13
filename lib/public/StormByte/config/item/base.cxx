@@ -1,8 +1,8 @@
-#include <config/item/group.hxx>
-#include <config/item/list.hxx>
-#include <config/item/value.hxx>
-#include <config/item/comment.hxx>
-#include <util/string.hxx>
+#include <StormByte/config/item/group.hxx>
+#include <StormByte/config/item/list.hxx>
+#include <StormByte/config/item/value.hxx>
+#include <StormByte/config/item/comment.hxx>
+#include <StormByte/util/string.hxx>
 
 #include <regex>
 

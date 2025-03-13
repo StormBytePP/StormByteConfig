@@ -1,8 +1,8 @@
 #pragma once
 
-#include <config/exception.hxx>
-#include <config/item/type.hxx>
-#include <util/templates/clonable.hxx>
+#include <StormByte/config/exception.hxx>
+#include <StormByte/config/item/type.hxx>
+#include <StormByte/util/templates/clonable.hxx>
 
 #include <optional>
 #include <string>

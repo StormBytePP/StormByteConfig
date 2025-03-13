@@ -1,4 +1,4 @@
-#include <config/exception.hxx>
+#include <StormByte/config/exception.hxx>
 
 using namespace StormByte::Config;
 

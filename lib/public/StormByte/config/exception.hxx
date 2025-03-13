@@ -1,7 +1,7 @@
 #pragma once
 
-#include <exception.hxx>
-#include <config/item/type.hxx>
+#include <StormByte/exception.hxx>
+#include <StormByte/config/item/type.hxx>
 
 /**
  * @namespace Config

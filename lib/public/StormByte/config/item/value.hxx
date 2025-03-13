@@ -1,6 +1,6 @@
 #pragma once
 
-#include <config/item/base.hxx>
+#include <StormByte/config/item/base.hxx>
 
 /**
  * @namespace Item

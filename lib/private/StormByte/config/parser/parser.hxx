@@ -1,14 +1,14 @@
 #pragma once
 
-#include <alias.hxx>
-#include <config/alias.hxx>
-#include <config/exception.hxx>
-#include <config/item/comment.hxx>
-#include <config/item/group.hxx>
-#include <config/item/list.hxx>
-#include <config/item/value.hxx>
-#include <config/parser/type.hxx>
-#include <config/type.hxx>
+#include <StormByte/alias.hxx>
+#include <StormByte/config/alias.hxx>
+#include <StormByte/config/exception.hxx>
+#include <StormByte/config/item/comment.hxx>
+#include <StormByte/config/item/group.hxx>
+#include <StormByte/config/item/list.hxx>
+#include <StormByte/config/item/value.hxx>
+#include <StormByte/config/parser/type.hxx>
+#include <StormByte/config/type.hxx>
 
 #include <istream>
 #include <regex>

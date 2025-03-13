@@ -1,7 +1,7 @@
 #pragma once
 
-#include <config/exception.hxx>
-#include <config/visibility.h>
+#include <StormByte/config/exception.hxx>
+#include <StormByte/config/visibility.h>
 
 #include <concepts>
 #include <string>

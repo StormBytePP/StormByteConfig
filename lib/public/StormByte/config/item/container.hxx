@@ -1,8 +1,8 @@
 #pragma once
 
-#include <config/exception.hxx>
-#include <config/item/base.hxx>
-#include <config/type.hxx>
+#include <StormByte/config/exception.hxx>
+#include <StormByte/config/item/base.hxx>
+#include <StormByte/config/type.hxx>
 
 #include <queue>
 #include <span>
