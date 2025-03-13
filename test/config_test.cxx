@@ -1,5 +1,6 @@
 #include <StormByte/config/config.hxx>
 #include <StormByte/util/system.hxx>
+#include <StormByte/test_handlers.h>
 
 #include <iostream>
 #include <cassert>
@@ -7,7 +8,6 @@
 #include <fstream>
 #include <sstream>
 #include <climits>
-#include "test_handlers.h"
 
 using namespace StormByte::Config;
 
